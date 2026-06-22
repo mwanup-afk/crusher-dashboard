@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crusher Availability — ITD Mae Moh</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--surface:#0d1117;--card:#111827;--card2:#161e2e;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --text:#eef0f7;--muted:#556070;--muted2:#8896aa;
+  --green:#10b981;--green-d:rgba(16,185,129,.12);
+  --amber:#f59e0b;--amber-d:rgba(245,158,11,.12);
+  --red:#ef4444;--red-d:rgba(239,68,68,.12);
+  --blue:#3b82f6;--blue-d:rgba(59,130,246,.12);
+  --orange:#f97316;--r:8px;--r2:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter','Noto Sans Thai',sans-serif;font-size:13px;min-height:100vh}
+
+/* Nav */
+.nav{background:var(--surface);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 22px;height:54px;position:sticky;top:0;z-index:100;gap:12px}
+.nav svg{height:26px;flex-shrink:0}
+.nav-div{width:1px;height:22px;background:var(--border2)}
+.nav-title{font-size:13px;font-weight:700}
+.nav-sub{font-size:10px;color:var(--muted2)}
+.nav-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.nbtn{padding:5px 12px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.nbtn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nbtn.or{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);color:var(--orange)}
+
+/* Shell */
+.shell{max-width:1400px;margin:0 auto;padding:20px 22px 60px}
+
+/* Filter bar */
+.filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.filter-group{display:flex;align-items:center;gap:6px}
+.filter-label{font-size:11px;color:var(--muted);font-weight:500;white-space:nowrap}
+.filter-select,.filter-input{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--r);padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none}
+.filter-select:focus,.filter-input:focus{border-color:var(--blue)}
+.filter-select option{background:#1a2236}
+.btn-filter{padding:5px 14px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:none;background:var(--blue);color:#fff;transition:opacity .15s}
+.btn-filter:hover{opacity:.85}
+.tab-pills{display:flex;gap:4px;background:var(--card2);border-radius:var(--r);padding:3px;margin-left:auto}
+.tp{padding:4px 14px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s;border:none;background:transparent}
+.tp.active{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.4)}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.kg::after{background:var(--green)}.kpi.ka::after{background:var(--amber)}
+.kpi.kr::after{background:var(--red)}.kpi.kb::after{background:var(--blue)}
+.kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.kpi-val{font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1}
+.g{color:var(--green)}.a{color:var(--amber)}.r{color:var(--red)}.b{color:var(--blue)}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:5px}
+.kpi-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:8px;overflow:hidden}
+.kpi-bar-fill{height:100%;border-radius:2px;transition:width .6s}
+
+/* Section */
+.sec{display:flex;align-items:center;gap:8px;margin:20px 0 12px}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.sec-line{flex:1;height:1px;background:var(--border)}
+
+/* Chart grid */
+.chart-grid{display:grid;gap:12px;margin-bottom:12px}
+.cg2{grid-template-columns:1fr 1fr}
+@media(max-width:800px){.cg2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px}
+.card-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:12px}
+.cw{position:relative;width:100%}
+.leg{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.leg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted2)}
+.leg-d{width:10px;height:10px;border-radius:2px}
+
+/* Crusher availability cards */
+.avail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.avail-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px}
+.avail-name{font-size:18px;font-weight:900;letter-spacing:-1px;margin-bottom:8px}
+.avail-pct{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.avail-lbl{font-size:10px;color:var(--muted);margin-bottom:10px}
+.avail-bars{display:flex;flex-direction:column;gap:4px}
+.avail-bar-row{display:flex;align-items:center;gap:6px}
+.avail-bar-lbl{font-size:9px;font-weight:600;width:60px;flex-shrink:0}
+.avail-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden}
+.avail-bar-fill{height:100%;border-radius:4px;transition:width .5s}
+.avail-bar-val{font-size:9px;color:var(--muted);width:36px;text-align:right;font-family:monospace}
+
+/* Table */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:8px 10px;border-bottom:1px solid var(--border2);color:var(--muted);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.num{text-align:right;font-variant-numeric:tabular-nums;font-family:monospace}
+.bdg{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.b-g{background:var(--green-d);color:var(--green)}.b-a{background:var(--amber-d);color:var(--amber)}
+.b-r{background:var(--red-d);color:var(--red)}.b-b{background:var(--blue-d);color:var(--blue)}
+.cr-pill{font-family:monospace;font-size:12px;font-weight:700;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:4px;padding:1px 8px;color:var(--blue)}
+
+/* Entry Form */
+.form-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r2);padding:18px 20px}
+.form-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--blue)}
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:10px;font-weight:500;color:var(--muted2)}
+.fg label span{color:var(--red);margin-left:2px}
+.fg input,.fg select,.fg textarea{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--r);padding:8px 10px;font-size:12px;color:var(--text);width:100%;font-family:inherit;outline:none;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
+.fg select option{background:#1a2236}
+.submit-row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.btn-sub{padding:8px 22px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:none;background:var(--orange);color:#fff;transition:all .15s}
+.btn-sub:hover{opacity:.85}
+.btn-sub:disabled{opacity:.4;cursor:not-allowed}
+.btn-rst{padding:8px 16px;border-radius:var(--r);font-size:12px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2)}
+.btn-rst:hover{color:var(--text)}
+.sub-msg{font-size:11px}
+.msg-ok{color:var(--green)}.msg-err{color:var(--red)}.msg-ld{color:var(--muted2)}
+
+/* Auto-calc display */
+.calc-box{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:var(--r);padding:8px 12px;font-size:12px;color:var(--green);margin-top:8px;display:none}
+
+/* No data */
+.no-data{text-align:center;padding:40px;color:var(--muted)}
+.no-data-icon{font-size:36px;margin-bottom:10px}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <svg viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="40" r="35" fill="none" stroke="#F7941D" stroke-width="4"/>
+    <circle cx="40" cy="40" r="23" fill="none" stroke="#F7941D" stroke-width="2.5"/>
+    <rect x="33" y="19" width="5" height="42" fill="rgba(255,255,255,.9)"/>
+    <rect x="20" y="19" width="27" height="5" fill="#F7941D"/>
+    <rect x="33" y="19" width="5" height="30" fill="#F7941D"/>
+    <text x="87" y="36" font-family="Arial Black,Arial" font-weight="900" font-size="20" fill="white">ITALIAN-THAI</text>
+    <text x="87" y="54" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#F7941D" letter-spacing="2">DEVELOPMENT</text>
+  </svg>
+  <div class="nav-div"></div>
+  <div>
+    <div class="nav-title">Crusher Availability</div>
+    <div class="nav-sub">Mae Moh Mine · ชั่วโมงการทำงาน Run / Standby / Breakdown</div>
+  </div>
+  <div class="nav-right">
+    <a class="nbtn" href="entry.html">✏ บันทึก</a>
+    <a class="nbtn" href="overview.html">⚙️ Overview</a>
+    <a class="nbtn" href="dashboard.html">📊 Dashboard</a>
+    <a class="nbtn" href="index.html">🏠 หน้าแรก</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">Crusher:</span>
+      <select class="filter-select" id="fCrusher">
+        <option value="ALL">ทั้งหมด</option>
+        <option>A</option><option>B</option><option>C</option><option>D</option>
+        <option>I</option><option>J</option><option>K</option><option>L</option><option>N</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">ปี:</span>
+      <select class="filter-select" id="fYear">
+        <option value="ALL">ทั้งหมด</option>
+        <option value="2025">2568 (2025)</option>
+        <option value="2026">2569 (2026)</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">เดือน:</span>
+      <select class="filter-select" id="fMonth">
+        <option value="ALL">ทั้งหมด</option>
+        <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option>
+        <option value="03">มีนาคม</option><option value="04">เมษายน</option>
+        <option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option>
+        <option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option>
+        <option value="09">กันยายน</option><option value="10">ตุลาคม</option>
+        <option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+      </select>
+    </div>
+    <button class="btn-filter" onclick="applyFilter()">🔍 กรอง</button>
+    <div class="tab-pills" style="margin-left:auto">
+      <button class="tp active" id="tp-day" onclick="setView('day',this)">รายวัน</button>
+      <button class="tp" id="tp-month" onclick="setView('month',this)">รายเดือน</button>
+      <button class="tp" id="tp-year" onclick="setView('year',this)">รายปี</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- Availability per Crusher -->
+  <div class="sec"><div class="sec-lbl">Availability แต่ละ Crusher</div><div class="sec-line"></div></div>
+  <div class="avail-grid" id="availGrid"></div>
+
+  <!-- Charts -->
+  <div class="sec"><div class="sec-lbl">กราฟชั่วโมงการทำงาน</div><div class="sec-line"></div></div>
+  <div class="chart-grid cg2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="card-title" id="chart1Title">Run / Standby / Breakdown ต่อวัน</div>
+      <div class="card-sub" id="chart1Sub">ชั่วโมงสะสมแยกตามสถานะ</div>
+      <div class="leg">
+        <div class="leg-i"><div class="leg-d" style="background:#10b981"></div>Run</div>
+        <div class="leg-i"><div class="leg-d" style="background:#f59e0b"></div>Standby</div>
+        <div class="leg-i"><div class="leg-d" style="background:#ef4444"></div>Breakdown</div>
+      </div>
+      <div class="cw" style="height:240px"><canvas id="cStack"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">% Availability ต่อ Crusher</div>
+      <div class="card-sub">Run Hr / Total Hr × 100</div>
+      <div class="cw" style="height:260px"><canvas id="cAvail"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Detail table -->
+  <div class="sec"><div class="sec-lbl">รายละเอียด</div><div class="sec-line"></div></div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>วันที่</th><th>Crusher</th><th>สถานะ</th>
+            <th>เริ่ม</th><th>สิ้นสุด</th><th class="num">ชั่วโมง (Hr)</th>
+            <th>ผู้บันทึก</th><th>หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody id="detailBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Entry Form -->
+  <div class="sec"><div class="sec-lbl">บันทึกชั่วโมงสถานะ</div><div class="sec-line"></div></div>
+  <div class="form-card">
+    <div class="form-title">➕ บันทึก Availability Log</div>
+    <div class="fg-grid">
+      <div class="fg">
+        <label>วันที่ <span>*</span></label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="fg">
+        <label>Crusher <span>*</span></label>
+        <select id="f-crusher">
+          <option value="">เลือก Crusher</option>
+          <option>A</option><option>B</option><option>C</option><option>D</option>
+          <option>I</option><option>J</option><option>K</option><option>L</option><option>N</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>สถานะ <span>*</span></label>
+        <select id="f-status">
+          <option value="">เลือกสถานะ</option>
+          <option value="Run">▶ Run — เดินเครื่อง</option>
+          <option value="Standby">⏸ Standby — รอเดินเครื่อง</option>
+          <option value="Breakdown">⛔ Breakdown — เครื่องขัดข้อง</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>เวลาเริ่ม <span>*</span></label>
+        <input type="time" id="f-start" onchange="calcDuration()">
+      </div>
+      <div class="fg">
+        <label>เวลาสิ้นสุด <span>*</span></label>
+        <input type="time" id="f-end" onchange="calcDuration()">
+      </div>
+      <div class="fg">
+        <label>ชั่วโมง (คำนวณอัตโนมัติ)</label>
+        <input type="number" id="f-dur" placeholder="Hr" step="0.5" min="0" max="24">
+      </div>
+      <div class="fg">
+        <label>ผู้บันทึก</label>
+        <input type="text" id="f-user" placeholder="ชื่อ-สกุล">
+      </div>
+      <div class="fg">
+        <label>หมายเหตุ</label>
+        <input type="text" id="f-note" placeholder="สาเหตุ Breakdown หรือรายละเอียด">
+      </div>
+    </div>
+    <div class="calc-box" id="calcBox"></div>
+    <div class="submit-row">
+      <button class="btn-sub" id="subBtn" onclick="submitAvail()">📤 บันทึก</button>
+      <button class="btn-rst" onclick="resetForm()">↺ ล้าง</button>
+      <span class="sub-msg" id="subMsg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzvcpqrWfL5W6dpuIqZbhLho6a4fcKqiBsnwKg9SOkV9jYtuqDg6qa80F57Npg-ngC6/exec';
+const CRUSHERS = ['A','B','C','D','I','J','K','L','N'];
+const CDX = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{
+    x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#556070',font:{size:10}}},
+    y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#556070',font:{size:10}},beginAtZero:true}
+  }
+};
+
+let allData = [];
+let viewMode = 'day';
+let charts = {};
+
+// Set today
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+async function safe(name){
+  try{
+    const r = await fetch(API+'?sheet='+encodeURIComponent(name));
+    if(!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j)?j:[];
+  }catch(e){return [];}
+}
+
+function N(v){return parseFloat(v)||0;}
+
+function statusColor(s){
+  return s==='Run'?'#10b981':s==='Breakdown'?'#ef4444':'#f59e0b';
+}
+function statusClass(s){
+  return s==='Run'?'b-g':s==='Breakdown'?'b-r':'b-a';
+}
+
+async function init(){
+  const raw = await safe('availability_log');
+  allData = raw;
+  // Set current month/year as default
+  const now = new Date();
+  document.getElementById('fYear').value = now.getFullYear().toString();
+  document.getElementById('fMonth').value = String(now.getMonth()+1).padStart(2,'0');
+  render();
+}
+
+function applyFilter(){ render(); }
+function setView(v, el){
+  viewMode = v;
+  document.querySelectorAll('.tp').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function getFilteredData(){
+  const cr  = document.getElementById('fCrusher').value;
+  const yr  = document.getElementById('fYear').value;
+  const mo  = document.getElementById('fMonth').value;
+  return allData.filter(r=>{
+    const d = r.Date||'';
+    if(cr!=='ALL' && r.Crusher!==cr) return false;
+    if(yr!=='ALL' && !d.startsWith(yr)) return false;
+    if(mo!=='ALL' && d.slice(5,7)!==mo) return false;
+    return true;
+  });
+}
+
+function render(){
+  const data = getFilteredData();
+  buildKPIs(data);
+  buildAvailGrid(data);
+  buildStackChart(data);
+  buildAvailChart(data);
+  buildTable(data);
+}
+
+function sumByStatus(data, status){
+  return data.filter(r=>r.Status===status).reduce((s,r)=>s+N(r.Duration_Hr),0);
+}
+
+function buildKPIs(data){
+  const runHr   = sumByStatus(data,'Run');
+  const sbHr    = sumByStatus(data,'Standby');
+  const bdHr    = sumByStatus(data,'Breakdown');
+  const totalHr = runHr + sbHr + bdHr;
+  const avail   = totalHr>0?(runHr/totalHr*100).toFixed(1):0;
+  const runPct  = totalHr>0?Math.round(runHr/totalHr*100):0;
+  const sbPct   = totalHr>0?Math.round(sbHr/totalHr*100):0;
+  const bdPct   = totalHr>0?Math.round(bdHr/totalHr*100):0;
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi kb">
+      <div class="kpi-lbl">Total Hours</div>
+      <div class="kpi-val b">${totalHr.toFixed(1)}</div>
+      <div class="kpi-sub">Hr. รวมทุกสถานะ</div>
+    </div>
+    <div class="kpi kg">
+      <div class="kpi-lbl">▶ Run</div>
+      <div class="kpi-val g">${runHr.toFixed(1)}</div>
+      <div class="kpi-sub">${runPct}% ของเวลาทั้งหมด</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${runPct}%;background:var(--green)"></div></div>
+    </div>
+    <div class="kpi ka">
+      <div class="kpi-lbl">⏸ Standby</div>
+      <div class="kpi-val a">${sbHr.toFixed(1)}</div>
+      <div class="kpi-sub">${sbPct}% ของเวลาทั้งหมด</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${sbPct}%;background:var(--amber)"></div></div>
+    </div>
+    <div class="kpi kr">
+      <div class="kpi-lbl">⛔ Breakdown</div>
+      <div class="kpi-val r">${bdHr.toFixed(1)}</div>
+      <div class="kpi-sub">${bdPct}% ของเวลาทั้งหมด</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${bdPct}%;background:var(--red)"></div></div>
+    </div>
+    <div class="kpi ${parseFloat(avail)>=80?'kg':parseFloat(avail)>=60?'ka':'kr'}">
+      <div class="kpi-lbl">% Availability</div>
+      <div class="kpi-val ${parseFloat(avail)>=80?'g':parseFloat(avail)>=60?'a':'r'}">${avail}%</div>
+      <div class="kpi-sub">Run / Total × 100</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${avail}%;background:${parseFloat(avail)>=80?'var(--green)':parseFloat(avail)>=60?'var(--amber)':'var(--red)'}"></div></div>
+    </div>
+  `;
+}
+
+function buildAvailGrid(data){
+  document.getElementById('availGrid').innerHTML = CRUSHERS.map(id=>{
+    const cd = data.filter(r=>r.Crusher===id);
+    const runHr = sumByStatus(cd,'Run');
+    const sbHr  = sumByStatus(cd,'Standby');
+    const bdHr  = sumByStatus(cd,'Breakdown');
+    const tot   = runHr+sbHr+bdHr;
+    const avail = tot>0?(runHr/tot*100).toFixed(1):0;
+    const color = parseFloat(avail)>=80?'var(--green)':parseFloat(avail)>=60?'var(--amber)':'var(--red)';
+    const rp=tot>0?runHr/tot*100:0, sp=tot>0?sbHr/tot*100:0, bp=tot>0?bdHr/tot*100:0;
+    return `<div class="avail-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div class="avail-name">CR.${id}</div>
+        <div style="text-align:right">
+          <div class="avail-pct" style="color:${color}">${avail}%</div>
+          <div class="avail-lbl">Availability</div>
+        </div>
+      </div>
+      <div class="avail-bars">
+        <div class="avail-bar-row">
+          <div class="avail-bar-lbl" style="color:var(--green)">▶ Run</div>
+          <div class="avail-bar-bg"><div class="avail-bar-fill" style="width:${rp}%;background:var(--green)"></div></div>
+          <div class="avail-bar-val">${runHr.toFixed(1)}h</div>
+        </div>
+        <div class="avail-bar-row">
+          <div class="avail-bar-lbl" style="color:var(--amber)">⏸ Stby</div>
+          <div class="avail-bar-bg"><div class="avail-bar-fill" style="width:${sp}%;background:var(--amber)"></div></div>
+          <div class="avail-bar-val">${sbHr.toFixed(1)}h</div>
+        </div>
+        <div class="avail-bar-row">
+          <div class="avail-bar-lbl" style="color:var(--red)">⛔ BD</div>
+          <div class="avail-bar-bg"><div class="avail-bar-fill" style="width:${bp}%;background:var(--red)"></div></div>
+          <div class="avail-bar-val">${bdHr.toFixed(1)}h</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:9px;color:var(--muted)">${tot.toFixed(1)} Hr. รวม</div>
+    </div>`;
+  }).join('');
+}
+
+function getGroupKey(dateStr){
+  if(viewMode==='day') return dateStr;
+  if(viewMode==='month') return dateStr.slice(0,7);
+  return dateStr.slice(0,4);
+}
+
+function buildStackChart(data){
+  const grouped = {};
+  data.forEach(r=>{
+    const k = getGroupKey(r.Date||'');
+    if(!k) return;
+    if(!grouped[k]) grouped[k]={Run:0,Standby:0,Breakdown:0};
+    grouped[k][r.Status]=(grouped[k][r.Status]||0)+N(r.Duration_Hr);
+  });
+  const labels=Object.keys(grouped).sort().slice(-30);
+  const run=labels.map(k=>grouped[k].Run||0);
+  const sb=labels.map(k=>grouped[k].Standby||0);
+  const bd=labels.map(k=>grouped[k].Breakdown||0);
+
+  document.getElementById('chart1Title').textContent =
+    viewMode==='day'?'Run / Standby / Breakdown รายวัน':
+    viewMode==='month'?'Run / Standby / Breakdown รายเดือน':'รายปี';
+
+  if(charts.cStack) charts.cStack.destroy();
+  charts.cStack = new Chart(document.getElementById('cStack'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Run',     data:run, backgroundColor:'rgba(16,185,129,.8)', borderRadius:3,barPercentage:.8},
+      {label:'Standby', data:sb,  backgroundColor:'rgba(245,158,11,.8)', borderRadius:3,barPercentage:.8},
+      {label:'Breakdown',data:bd, backgroundColor:'rgba(239,68,68,.8)',  borderRadius:3,barPercentage:.8}
+    ]},
+    options:{...CDX,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw.toFixed(1)} Hr`}}},
+      scales:{x:{...CDX.scales.x,stacked:true},y:{...CDX.scales.y,stacked:true,ticks:{...CDX.scales.y.ticks,callback:v=>v+'h'}}}
+    }
+  });
+}
+
+function buildAvailChart(data){
+  const vals = CRUSHERS.map(id=>{
+    const cd=data.filter(r=>r.Crusher===id);
+    const run=sumByStatus(cd,'Run'), tot=run+sumByStatus(cd,'Standby')+sumByStatus(cd,'Breakdown');
+    return tot>0?parseFloat((run/tot*100).toFixed(1)):0;
+  });
+  const colors = vals.map(v=>v>=80?'rgba(16,185,129,.8)':v>=60?'rgba(245,158,11,.8)':'rgba(239,68,68,.8)');
+
+  if(charts.cAvail) charts.cAvail.destroy();
+  charts.cAvail = new Chart(document.getElementById('cAvail'),{
+    type:'bar',
+    data:{labels:CRUSHERS.map(id=>'CR.'+id),datasets:[{data:vals,backgroundColor:colors,borderRadius:4,barPercentage:.65}]},
+    options:{...CDX,indexAxis:'y',
+      plugins:{...CDX.plugins,tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+'%'}}},
+      scales:{
+        x:{...CDX.scales.x,min:0,max:100,ticks:{...CDX.scales.x.ticks,callback:v=>v+'%'}},
+        y:{...CDX.scales.y,grid:{display:false}}
+      }
+    }
+  });
+}
+
+function buildTable(data){
+  const sorted=[...data].sort((a,b)=>(b.Date||'').localeCompare(a.Date||''));
+  document.getElementById('detailBody').innerHTML = sorted.length?sorted.slice(0,50).map(r=>`
+    <tr>
+      <td style="white-space:nowrap;color:var(--muted)">${r.Date||'—'}</td>
+      <td><span class="cr-pill">CR.${r.Crusher||'?'}</span></td>
+      <td><span class="bdg ${statusClass(r.Status)}">${r.Status||'—'}</span></td>
+      <td style="font-family:monospace">${r.Start_Time||'—'}</td>
+      <td style="font-family:monospace">${r.End_Time||'—'}</td>
+      <td class="num" style="font-weight:700;color:${statusColor(r.Status)}">${N(r.Duration_Hr).toFixed(1)}</td>
+      <td style="color:var(--muted2)">${r.User||'—'}</td>
+      <td style="color:var(--muted);font-size:11px">${r.Note||'—'}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">ยังไม่มีข้อมูล — บันทึกด้านล่างได้เลย</td></tr>';
+}
+
+/* Duration auto-calc */
+function calcDuration(){
+  const s=document.getElementById('f-start').value;
+  const e=document.getElementById('f-end').value;
+  if(!s||!e) return;
+  const [sh,sm]=s.split(':').map(Number);
+  const [eh,em]=e.split(':').map(Number);
+  let dur=((eh*60+em)-(sh*60+sm))/60;
+  if(dur<0) dur+=24; // ข้ามวัน
+  dur=Math.round(dur*10)/10;
+  document.getElementById('f-dur').value=dur;
+  const box=document.getElementById('calcBox');
+  box.style.display='block';
+  box.textContent=`✅ ระยะเวลา: ${dur} ชั่วโมง (${s} → ${e}${dur<0||((eh*60+em)<(sh*60+sm))?'  +1 วัน':''})`;
+}
+
+async function submitAvail(){
+  const btn=document.getElementById('subBtn');
+  const msg=document.getElementById('subMsg');
+  const date=document.getElementById('f-date').value;
+  const crusher=document.getElementById('f-crusher').value;
+  const status=document.getElementById('f-status').value;
+  const dur=document.getElementById('f-dur').value;
+  if(!date||!crusher||!status||!dur){
+    msg.className='sub-msg msg-err';msg.textContent='⚠️ กรุณากรอกข้อมูลที่จำเป็น';return;
+  }
+  btn.disabled=true;msg.className='sub-msg msg-ld';msg.textContent='⏳ กำลังส่ง…';
+  const params={
+    Date:date,
+    Crusher:crusher,
+    Status:status,
+    Start_Time:document.getElementById('f-start').value||'',
+    End_Time:document.getElementById('f-end').value||'',
+    Duration_Hr:dur,
+    User:document.getElementById('f-user').value||'',
+    Note:document.getElementById('f-note').value||'',
+    Timestamp:new Date().toISOString()
+  };
+  try{
+    const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+    const r=await fetch(API+'?action=insert&sheet=availability_log&'+qs);
+    const data=await r.json();
+    if(data.status==='ok'||data.row){
+      msg.className='sub-msg msg-ok';msg.textContent='✅ บันทึกสำเร็จ!';
+      resetForm();
+      // Reload
+      setTimeout(async()=>{allData=await safe('availability_log');render();},1000);
+    } else {
+      msg.className='sub-msg msg-err';msg.textContent='❌ '+(data.error||'เกิดข้อผิดพลาด');
+    }
+  }catch(e){
+    msg.className='sub-msg msg-err';msg.textContent='❌ '+e.message;
+  }
+  btn.disabled=false;
+}
+
+function resetForm(){
+  ['f-crusher','f-status'].forEach(id=>document.getElementById(id).value='');
+  ['f-start','f-end','f-dur','f-user','f-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('calcBox').style.display='none';
+}
+
+init();
+</script>
+</body>
+</html>

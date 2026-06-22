@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crusher Overview — ITD Mae Moh</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--surface:#0d1117;--card:#111827;--card2:#161e2e;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --text:#eef0f7;--muted:#556070;--muted2:#8896aa;
+  --green:#10b981;--green-d:rgba(16,185,129,.12);
+  --amber:#f59e0b;--amber-d:rgba(245,158,11,.12);
+  --red:#ef4444;--red-d:rgba(239,68,68,.12);
+  --blue:#3b82f6;--blue-d:rgba(59,130,246,.12);
+  --purple:#8b5cf6;--orange:#f97316;
+  --r:8px;--r2:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter','Noto Sans Thai',sans-serif;font-size:13px;min-height:100vh}
+
+/* Nav */
+.nav{background:var(--surface);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 22px;height:54px;position:sticky;top:0;z-index:100;gap:12px}
+.nav svg{height:26px;flex-shrink:0}
+.nav-div{width:1px;height:22px;background:var(--border2)}
+.nav-title{font-size:13px;font-weight:700}
+.nav-sub{font-size:10px;color:var(--muted2)}
+.nav-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.nbtn{padding:5px 12px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.nbtn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nbtn.or{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);color:var(--orange)}
+.sync-lbl{font-size:10px;color:var(--muted)}
+
+/* Layout */
+.shell{display:flex;height:calc(100vh - 54px)}
+.sidebar{width:200px;background:var(--surface);border-right:1px solid var(--border);flex-shrink:0;overflow-y:auto;padding:12px 8px}
+.sb-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 8px;margin-bottom:4px;margin-top:12px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r);cursor:pointer;transition:all .15s;margin-bottom:2px}
+.sb-item:hover{background:rgba(255,255,255,.04)}
+.sb-item.active{background:var(--blue-d);color:var(--blue)}
+.sb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sb-name{font-size:12px;font-weight:600}
+.sb-ep{font-size:9px;color:var(--muted);font-family:monospace}
+.sb-status{font-size:9px;font-weight:600;margin-left:auto}
+
+/* Main */
+.main-area{flex:1;overflow-y:auto;padding:20px 22px 48px}
+
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.kg::after{background:var(--green)}.kpi.ka::after{background:var(--amber)}
+.kpi.kr::after{background:var(--red)}.kpi.kb::after{background:var(--blue)}
+.kpi.kp::after{background:var(--purple)}
+.kpi-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.kpi-val{font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1}
+.g{color:var(--green)}.a{color:var(--amber)}.r{color:var(--red)}.b{color:var(--blue)}.p{color:var(--purple)}
+.kpi-sub{font-size:9px;color:var(--muted);margin-top:4px}
+
+/* Crusher detail header */
+.cr-header{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin-bottom:12px}
+.cr-title-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cr-big-name{font-size:36px;font-weight:900;letter-spacing:-2px;line-height:1}
+.cr-meta{flex:1}
+.cr-ep-badge{display:inline-block;font-family:monospace;font-size:11px;font-weight:600;background:rgba(255,255,255,.07);border:1px solid var(--border2);border-radius:4px;padding:2px 8px;margin-bottom:4px}
+.cr-type-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;margin-left:6px}
+.cr-type-mmd{background:var(--green-d);color:var(--green)}
+.cr-type-krupp{background:rgba(139,92,246,.12);color:var(--purple)}
+.cr-line{font-size:11px;color:var(--muted2);margin-top:3px}
+.status-big{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--r);font-size:12px;font-weight:700;letter-spacing:.06em}
+.status-big .dot{width:10px;height:10px;border-radius:50%}
+.st-run{background:var(--green-d);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.st-run .dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.st-standby{background:var(--amber-d);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.st-standby .dot{background:var(--amber)}
+.st-breakdown{background:var(--red-d);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.st-breakdown .dot{background:var(--red)}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.stat{background:rgba(255,255,255,.03);border-radius:var(--r);padding:8px 10px}
+.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stat-val{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Section */
+.sec{display:flex;align-items:center;gap:8px;margin:16px 0 10px}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.sec-line{flex:1;height:1px;background:var(--border)}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px}
+.card-title{font-size:12px;font-weight:600;margin-bottom:10px}
+
+/* Parts grid */
+.parts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.part-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .15s}
+.part-card:hover{border-color:var(--border2);background:rgba(255,255,255,.05)}
+.part-icon{font-size:20px;margin-bottom:6px}
+.part-name{font-size:11px;font-weight:600;color:var(--text)}
+.part-last{font-size:10px;color:var(--muted);margin-top:3px}
+.part-count{font-size:18px;font-weight:800;color:var(--blue);margin-top:4px}
+
+/* Table */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:7px 10px;border-bottom:1px solid var(--border2);color:var(--muted);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.num{text-align:right;font-variant-numeric:tabular-nums;font-family:monospace}
+.bdg{display:inline-flex;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600}
+.b-g{background:var(--green-d);color:var(--green)}.b-a{background:var(--amber-d);color:var(--amber)}
+.b-r{background:var(--red-d);color:var(--red)}.b-b{background:var(--blue-d);color:var(--blue)}
+.empty{text-align:center;color:var(--muted);padding:20px!important}
+
+/* Mini form */
+.mini-form{background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:var(--r2);padding:14px 16px;margin-bottom:10px}
+.mf-title{font-size:12px;font-weight:600;margin-bottom:10px;color:var(--blue)}
+.mf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.mf-fg{display:flex;flex-direction:column;gap:4px}
+.mf-fg.full{grid-column:1/-1}
+.mf-fg label{font-size:10px;color:var(--muted2);font-weight:500}
+.mf-fg input,.mf-fg select,.mf-fg textarea{background:rgba(255,255,255,.06);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;font-size:12px;color:var(--text);width:100%;font-family:inherit;outline:none;transition:border-color .15s}
+.mf-fg input:focus,.mf-fg select:focus,.mf-fg textarea:focus{border-color:var(--blue)}
+.mf-fg select option{background:#1a2236}
+.mf-fg textarea{min-height:60px;resize:vertical}
+.mf-row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.btn-sm{padding:7px 18px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{opacity:.85}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted2)}.btn-ghost:hover{color:var(--text)}
+.btn-sm:disabled{opacity:.4;cursor:not-allowed}
+.mini-msg{font-size:11px}
+.msg-ok{color:var(--green)}.msg-err{color:var(--red)}.msg-ld{color:var(--muted2)}
+
+/* All crushers grid */
+.all-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.ac-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.ac-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.ac-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.ac-card.run::before{background:var(--green)}
+.ac-card.standby::before{background:var(--amber)}
+.ac-card.breakdown::before{background:var(--red)}
+.ac-name{font-size:18px;font-weight:900;letter-spacing:-1px}
+.ac-ep{font-size:9px;color:var(--muted);font-family:monospace}
+.ac-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px}
+.ac-s{background:rgba(255,255,255,.03);border-radius:5px;padding:4px 6px}
+.ac-s-lbl{font-size:8px;color:var(--muted);text-transform:uppercase}
+.ac-s-val{font-size:11px;font-weight:700}
+.ac-status-row{display:flex;align-items:center;gap:4px;margin-top:8px}
+.ac-dot{width:6px;height:6px;border-radius:50%}
+.ac-stxt{font-size:9px;font-weight:700}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <svg viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="40" r="35" fill="none" stroke="#F7941D" stroke-width="4"/>
+    <circle cx="40" cy="40" r="23" fill="none" stroke="#F7941D" stroke-width="2.5"/>
+    <rect x="33" y="19" width="5" height="42" fill="rgba(255,255,255,.9)"/>
+    <rect x="20" y="19" width="27" height="5" fill="#F7941D"/>
+    <rect x="33" y="19" width="5" height="30" fill="#F7941D"/>
+    <text x="87" y="36" font-family="Arial Black,Arial" font-weight="900" font-size="20" fill="white">ITALIAN-THAI</text>
+    <text x="87" y="54" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#F7941D" letter-spacing="2">DEVELOPMENT</text>
+  </svg>
+  <div class="nav-div"></div>
+  <div>
+    <div class="nav-title">Crusher Overview</div>
+    <div class="nav-sub">Mae Moh Mine · สถานะและประวัติ Crusher</div>
+  </div>
+  <div class="nav-right">
+    <span class="sync-lbl" id="syncLbl"></span>
+    <a class="nbtn" href="entry.html">✏ บันทึก</a>
+    <a class="nbtn" href="dashboard.html">📊 Dashboard</a>
+    <a class="nbtn" href="index.html">🏠 หน้าแรก</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <!-- Sidebar: Crusher list -->
+  <div class="sidebar">
+    <div class="sb-label">ภาพรวม</div>
+    <div class="sb-item active" id="sb-all" onclick="showAll()">
+      <div class="sb-dot" style="background:var(--blue)"></div>
+      <div><div class="sb-name" style="color:var(--blue)">ทั้งหมด</div><div class="sb-ep">9 Crusher</div></div>
+    </div>
+    <div class="sb-label">Krupp</div>
+    <div id="sb-krupp"></div>
+    <div class="sb-label">MMD</div>
+    <div id="sb-mmd"></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-area" id="mainArea">
+    <div style="text-align:center;padding:60px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:12px">⚙️</div>
+      <div>กำลังโหลดข้อมูล…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzvcpqrWfL5W6dpuIqZbhLho6a4fcKqiBsnwKg9SOkV9jYtuqDg6qa80F57Npg-ngC6/exec';
+
+const EP_DATA = [
+  {id:'A',ep:'08-CS0005',type:'Krupp',smu:null,line:''},
+  {id:'B',ep:'08-CS0006',type:'Krupp',smu:9005,line:'Line B 10'},
+  {id:'C',ep:'08-CS0007',type:'Krupp',smu:5554,line:'Line A 14'},
+  {id:'D',ep:'08-CS0008',type:'Krupp',smu:null,line:''},
+  {id:'I',ep:'08-CS0010',type:'MMD',smu:20971,line:'Line A 13'},
+  {id:'J',ep:'08-CS0002',type:'MMD',smu:20835,line:'Line A 12 New'},
+  {id:'K',ep:'08-CS0012',type:'MMD',smu:102703,line:'Line A 11'},
+  {id:'L',ep:'08-CS0011',type:'MMD',smu:99929,line:'Line B 10'},
+  {id:'N',ep:'08-CS0009',type:'MMD',smu:25447,line:'Line B 10'},
+];
+
+const PARTS = [
+  {key:'carry_roller',  icon:'🔵', name:'Carry Roller',   unit:'ตัว'},
+  {key:'return_roller', icon:'🟡', name:'Return Roller',  unit:'ตัว'},
+  {key:'impact_roller', icon:'🟠', name:'Impact Roller',  unit:'ตัว'},
+  {key:'wear_plate',    icon:'🔶', name:'Wear Plate',     unit:'แผ่น'},
+  {key:'fine_chain',    icon:'⛓',  name:'โซ่ Fine',       unit:'ชุด'},
+  {key:'tip',           icon:'🦷', name:'Tip Sizer',      unit:'ฟัน'},
+];
+
+let D = {st:[],log:[],maint:[]};
+let currentCrusher = null;
+
+async function safe(name){
+  try{
+    const r=await fetch(API+'?sheet='+encodeURIComponent(name));
+    if(!r.ok) return [];
+    const j=await r.json();
+    return Array.isArray(j)?j:[];
+  }catch(e){return [];}
+}
+
+async function init(){
+  const [st,log,maint] = await Promise.all([
+    safe('crusher_status'), safe('entry_log'), safe('maintenance_log')
+  ]);
+  D = {st,log,maint};
+  buildSidebar();
+  showAll();
+  document.getElementById('syncLbl').textContent = 'อัปเดต: '+new Date().toLocaleTimeString('th-TH');
+}
+
+function getStatus(id){
+  const s = D.st.find(r=>r.Crusher===id);
+  return (s&&s.Status)||'Run';
+}
+function statusClass(s){
+  return s==='Run'?'run':s==='Breakdown'?'breakdown':'standby';
+}
+function statusColor(s){
+  return s==='Run'?'var(--green)':s==='Breakdown'?'var(--red)':'var(--amber)';
+}
+
+function buildSidebar(){
+  const krupp = EP_DATA.filter(e=>e.type==='Krupp');
+  const mmd   = EP_DATA.filter(e=>e.type==='MMD');
+  ['krupp','mmd'].forEach((t,ti)=>{
+    const list = ti===0?krupp:mmd;
+    document.getElementById('sb-'+t).innerHTML = list.map(e=>{
+      const st = getStatus(e.id);
+      const sc = statusColor(st);
+      return `<div class="sb-item" id="sb-${e.id}" onclick="showCrusher('${e.id}')">
+        <div class="sb-dot" style="background:${sc}${st==='Run'?';box-shadow:0 0 4px '+sc:''}"></div>
+        <div style="flex:1">
+          <div class="sb-name">CR.${e.id}</div>
+          <div class="sb-ep">${e.ep}</div>
+        </div>
+        <div class="sb-status" style="color:${sc}">${st}</div>
+      </div>`;
+    }).join('');
+  });
+}
+
+function setActiveSb(id){
+  document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
+  const el = document.getElementById('sb-'+(id||'all'));
+  if(el) el.classList.add('active');
+}
+
+/* ── All Crushers View ── */
+function showAll(){
+  currentCrusher = null;
+  setActiveSb(null);
+  const run = EP_DATA.filter(e=>getStatus(e.id)==='Run').length;
+  const bd  = EP_DATA.filter(e=>getStatus(e.id)==='Breakdown').length;
+  const sb  = EP_DATA.filter(e=>getStatus(e.id)==='Standby').length;
+  // SMU Hr per status group
+  const runHr = EP_DATA.filter(e=>getStatus(e.id)==='Run').reduce((s,e)=>s+(e.smu||0),0);
+  const sbHr  = EP_DATA.filter(e=>getStatus(e.id)==='Standby').reduce((s,e)=>s+(e.smu||0),0);
+  const bdHr  = EP_DATA.filter(e=>getStatus(e.id)==='Breakdown').reduce((s,e)=>s+(e.smu||0),0);
+  const totalTip = D.log.filter(r=>r.Type==='Tip Change').reduce((s,r)=>s+(parseFloat(r.Qty)||0),0);
+  const totalMaint = D.maint.length;
+
+  document.getElementById('mainArea').innerHTML = `
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi kg">
+        <div class="kpi-lbl">Run</div>
+        <div class="kpi-val g">${run}</div>
+        <div class="kpi-sub">${runHr.toLocaleString()} Hr.</div>
+      </div>
+      <div class="kpi ka">
+        <div class="kpi-lbl">Standby</div>
+        <div class="kpi-val a">${sb}</div>
+        <div class="kpi-sub">${sbHr.toLocaleString()} Hr.</div>
+      </div>
+      <div class="kpi kr">
+        <div class="kpi-lbl">Breakdown</div>
+        <div class="kpi-val r">${bd}</div>
+        <div class="kpi-sub">${bdHr.toLocaleString()} Hr.</div>
+      </div>
+      <div class="kpi kb"><div class="kpi-lbl">Crusher รวม</div><div class="kpi-val b">9</div><div class="kpi-sub">Krupp 4 · MMD 5</div></div>
+      <div class="kpi kb"><div class="kpi-lbl">Tip รวม (บันทึก)</div><div class="kpi-val">${totalTip}</div><div class="kpi-sub">จาก Entry Log</div></div>
+      <div class="kpi kp"><div class="kpi-lbl">Maintenance</div><div class="kpi-val p">${totalMaint}</div><div class="kpi-sub">รายการซ่อม</div></div>
+    </div>
+
+    <div class="sec"><div class="sec-lbl">สถานะ Crusher ทั้งหมด</div><div class="sec-line"></div></div>
+    <div class="all-grid">
+      ${EP_DATA.map(e=>{
+        const st=getStatus(e.id), sc=statusColor(st), cls=statusClass(st);
+        const tipCount = D.log.filter(r=>r.Crusher===e.id&&r.Type==='Tip Change').reduce((s,r)=>s+(parseFloat(r.Qty)||0),0);
+        const maintCount = D.maint.filter(r=>r.Crusher===e.id).length;
+        return `<div class="ac-card ${cls}" onclick="showCrusher('${e.id}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="ac-name">CR.${e.id}</div>
+              <div class="ac-ep">${e.ep}</div>
+            </div>
+            <div style="font-size:9px;font-weight:700;color:${e.type==='MMD'?'var(--green)':'var(--purple)'};">${e.type}</div>
+          </div>
+          <div class="ac-stats">
+            <div class="ac-s"><div class="ac-s-lbl">SMU (Hr)</div><div class="ac-s-val" style="font-family:monospace">${e.smu?e.smu.toLocaleString():'—'}</div></div>
+            <div class="ac-s"><div class="ac-s-lbl">Tip</div><div class="ac-s-val" style="color:${tipCount>10?'var(--red)':tipCount>5?'var(--amber)':'var(--green)'}">${tipCount}</div></div>
+            <div class="ac-s"><div class="ac-s-lbl">Line</div><div class="ac-s-val" style="font-size:10px">${e.line||'—'}</div></div>
+            <div class="ac-s"><div class="ac-s-lbl">Maint.</div><div class="ac-s-val">${maintCount}</div></div>
+          </div>
+          <div class="ac-status-row">
+            <div class="ac-dot" style="background:${sc}${st==='Run'?';box-shadow:0 0 5px '+sc:''}"></div>
+            <div class="ac-stxt" style="color:${sc}">${st}</div>
+            <div style="margin-left:auto;font-size:9px;color:var(--muted)">คลิกดูรายละเอียด →</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="sec" style="margin-top:20px"><div class="sec-lbl">รายการบันทึกล่าสุด</div><div class="sec-line"></div></div>
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>วันที่</th><th>Crusher</th><th>ประเภท</th><th>จำนวน</th><th>ผู้บันทึก</th><th>หมายเหตุ</th></tr></thead>
+        <tbody>${D.log.length?D.log.slice(-15).reverse().map(r=>{
+          const t=r.Type||'';
+          const cls=t.includes('Lost')?'b-r':t.includes('Change')?'b-g':t.includes('Status')?'b-a':'b-b';
+          return `<tr><td style="color:var(--muted);white-space:nowrap">${r.Date||'—'}</td>
+            <td><b>CR.${r.Crusher||'?'}</b></td>
+            <td><span class="bdg ${cls}">${r.Type||'—'}</span></td>
+            <td style="text-align:center">${r.Qty||'—'}</td>
+            <td style="color:var(--muted2)">${r.User||'—'}</td>
+            <td style="color:var(--muted);font-size:11px">${r.Note||'—'}</td></tr>`;
+        }).join(''):'<tr><td class="empty" colspan="6">ยังไม่มีรายการ</td></tr>'}</tbody>
+      </table></div>
+    </div>
+  `;
+}
+
+/* ── Single Crusher View ── */
+function showCrusher(id){
+  currentCrusher = id;
+  setActiveSb(id);
+  const ep = EP_DATA.find(e=>e.id===id);
+  const st = getStatus(id);
+  const sc = statusColor(st);
+  const cls = statusClass(st);
+
+  // Data for this crusher
+  const myLog   = D.log.filter(r=>r.Crusher===id);
+  const myMaint = D.maint.filter(r=>r.Crusher===id);
+  const tipTotal = myLog.filter(r=>r.Type==='Tip Change').reduce((s,r)=>s+(parseFloat(r.Qty)||0),0);
+  const lostTotal= myLog.filter(r=>r.Type==='Tip Lost').reduce((s,r)=>s+(parseFloat(r.Qty)||0),0);
+
+  // Parts count from maintenance
+  const partCount = {};
+  PARTS.forEach(p=>{ partCount[p.key] = myMaint.filter(r=>(r.Part||r.Type||'').toLowerCase().includes(p.key.replace('_',' '))||r.Part===p.name).length; });
+  partCount['tip'] = tipTotal;
+
+  // Last maintenance per part
+  function lastMaint(key){
+    const rows = myMaint.filter(r=>{
+      const pt=(r.Part||r.Type||'').toLowerCase();
+      return pt.includes(key.replace('_',' '))||pt.includes(key);
+    });
+    if(!rows.length) return '—';
+    return rows[rows.length-1].Date||'—';
+  }
+
+  document.getElementById('mainArea').innerHTML = `
+    <!-- Header -->
+    <div class="cr-header">
+      <div class="cr-title-row">
+        <div class="cr-big-name">CR.${id}</div>
+        <div class="cr-meta">
+          <div>
+            <span class="cr-ep-badge">${ep.ep}</span>
+            <span class="cr-type-badge cr-type-${ep.type.toLowerCase()}">${ep.type}</span>
+          </div>
+          <div class="cr-line">📍 ${ep.line||'ไม่ระบุ Line'}</div>
+        </div>
+        <div class="status-big st-${cls}">
+          <div class="dot"></div>${st}
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-lbl">SMU (Hr)</div><div class="stat-val" style="font-family:monospace">${ep.smu?ep.smu.toLocaleString():'—'}</div></div>
+        <div class="stat"><div class="stat-lbl">Tip เปลี่ยน</div><div class="stat-val" style="color:var(--blue)">${tipTotal} ฟัน</div></div>
+        <div class="stat"><div class="stat-lbl">Tip หาย</div><div class="stat-val" style="color:var(--red)">${lostTotal} ฟัน</div></div>
+        <div class="stat"><div class="stat-lbl">รายการ Maint.</div><div class="stat-val" style="color:var(--amber)">${myMaint.length}</div></div>
+        <div class="stat"><div class="stat-lbl">บันทึกล่าสุด</div><div class="stat-val" style="font-size:12px">${myLog.length?myLog[myLog.length-1].Date||'—':'—'}</div></div>
+        <div class="stat"><div class="stat-lbl">ผู้บันทึกล่าสุด</div><div class="stat-val" style="font-size:12px">${myLog.length?myLog[myLog.length-1].User||'—':'—'}</div></div>
+      </div>
+    </div>
+
+    <!-- Parts overview -->
+    <div class="sec"><div class="sec-lbl">อะไหล่ที่เปลี่ยน</div><div class="sec-line"></div></div>
+    <div class="parts-grid">
+      ${PARTS.map(p=>`
+        <div class="part-card" onclick="openPartForm('${id}','${p.name}')">
+          <div class="part-icon">${p.icon}</div>
+          <div class="part-name">${p.name}</div>
+          <div class="part-last">ล่าสุด: ${lastMaint(p.key)}</div>
+          <div class="part-count">${partCount[p.key]||0} <span style="font-size:10px;font-weight:400;color:var(--muted)">${p.unit}</span></div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Quick entry form -->
+    <div class="sec"><div class="sec-lbl">บันทึกรายการใหม่</div><div class="sec-line"></div></div>
+    <div class="mini-form" id="miniForm">
+      <div class="mf-title">➕ บันทึกสำหรับ CR.${id}</div>
+      <div class="mf-grid">
+        <div class="mf-fg">
+          <label>วันที่</label>
+          <input type="date" id="mf-date" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="mf-fg">
+          <label>ประเภทรายการ</label>
+          <select id="mf-type">
+            <option value="">เลือกประเภท</option>
+            <option value="Tip Change">เปลี่ยน Tip</option>
+            <option value="Tip Lost">ฟันหาย</option>
+            <option value="Carry Roller">Carry Roller</option>
+            <option value="Return Roller">Return Roller</option>
+            <option value="Impact Roller">Impact Roller</option>
+            <option value="Wear Plate">Wear Plate</option>
+            <option value="Fine Chain">โซ่ Fine</option>
+            <option value="Status Update">อัปเดตสถานะ</option>
+            <option value="SMU Update">อัปเดต SMU</option>
+            <option value="Other Maintenance">ซ่อมอื่นๆ</option>
+          </select>
+        </div>
+        <div class="mf-fg">
+          <label>จำนวน</label>
+          <input type="number" id="mf-qty" placeholder="0" min="0">
+        </div>
+        <div class="mf-fg">
+          <label>สถานะหลังซ่อม</label>
+          <select id="mf-status">
+            <option value="">ไม่เปลี่ยน</option>
+            <option value="Run">▶ Run</option>
+            <option value="Standby">⏸ Standby</option>
+            <option value="Breakdown">⛔ Breakdown</option>
+          </select>
+        </div>
+        <div class="mf-fg">
+          <label>ผู้บันทึก</label>
+          <input type="text" id="mf-user" placeholder="ชื่อ-สกุล">
+        </div>
+        <div class="mf-fg">
+          <label>SMU (ถ้ามี)</label>
+          <input type="number" id="mf-smu" placeholder="ชั่วโมงสะสม">
+        </div>
+        <div class="mf-fg full">
+          <label>หมายเหตุ</label>
+          <textarea id="mf-note" placeholder="รายละเอียดการซ่อม, อะไหล่ที่ใช้, หรือข้อสังเกต…"></textarea>
+        </div>
+      </div>
+      <div class="mf-row">
+        <button class="btn-sm btn-blue" id="mfBtn" onclick="submitMini('${id}')">📤 ส่งข้อมูล</button>
+        <button class="btn-sm btn-ghost" onclick="clearMini()">↺ ล้าง</button>
+        <span class="mini-msg" id="mfMsg"></span>
+      </div>
+    </div>
+
+    <!-- Maintenance history -->
+    <div class="sec"><div class="sec-lbl">ประวัติการซ่อม / เปลี่ยนอะไหล่</div><div class="sec-line"></div></div>
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>วันที่</th><th>ประเภท</th><th>จำนวน</th><th>สถานะ</th><th>SMU</th><th>ผู้บันทึก</th><th>หมายเหตุ</th></tr></thead>
+        <tbody id="maintBody">
+          ${buildMaintRows(myMaint.concat(myLog))}
+        </tbody>
+      </table></div>
+    </div>
+  `;
+}
+
+function buildMaintRows(rows){
+  if(!rows.length) return '<tr><td class="empty" colspan="7">ยังไม่มีรายการ</td></tr>';
+  const sorted = [...rows].sort((a,b)=>(b.Date||'').localeCompare(a.Date||''));
+  return sorted.slice(0,30).map(r=>{
+    const t=r.Type||r.Part||'—';
+    const isTip=t.includes('Tip');
+    const isBreak=t.includes('Lost')||t.includes('Breakdown');
+    const cls=isBreak?'b-r':isTip?'b-g':t.includes('Status')?'b-a':'b-b';
+    const stColor=r.Status==='Run'?'var(--green)':r.Status==='Breakdown'?'var(--red)':r.Status==='Standby'?'var(--amber)':'';
+    return `<tr>
+      <td style="color:var(--muted);white-space:nowrap">${r.Date||'—'}</td>
+      <td><span class="bdg ${cls}">${t}</span></td>
+      <td class="num">${r.Qty||'—'}</td>
+      <td>${r.Status?`<span style="font-size:10px;font-weight:700;color:${stColor}">${r.Status}</span>`:'—'}</td>
+      <td class="num" style="font-family:monospace">${r.SMU||'—'}</td>
+      <td style="color:var(--muted2)">${r.User||'—'}</td>
+      <td style="color:var(--muted);font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.Note||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openPartForm(id, partName){
+  const sel = document.getElementById('mf-type');
+  if(sel) sel.value = partName;
+  document.getElementById('miniForm')?.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+async function submitMini(crusherId){
+  const btn=document.getElementById('mfBtn');
+  const msg=document.getElementById('mfMsg');
+  const type=document.getElementById('mf-type').value;
+  if(!type){msg.className='mini-msg msg-err';msg.textContent='⚠️ เลือกประเภทก่อน';return;}
+  btn.disabled=true;msg.className='mini-msg msg-ld';msg.textContent='⏳ กำลังส่ง…';
+  const params={
+    Date:document.getElementById('mf-date').value,
+    Month:'',Crusher:crusherId,Type:type,
+    Qty:document.getElementById('mf-qty').value||'',
+    SMU:document.getElementById('mf-smu').value||'',
+    Status:document.getElementById('mf-status').value||'',
+    User:document.getElementById('mf-user').value||'',
+    Note:document.getElementById('mf-note').value||'',
+    Timestamp:new Date().toISOString()
+  };
+  // Choose sheet: maintenance_log or entry_log
+  const sheet = ['Carry Roller','Return Roller','Impact Roller','Wear Plate','Fine Chain','Other Maintenance'].includes(type)?'maintenance_log':'entry_log';
+  try{
+    const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+    const r=await fetch(API+'?action=insert&sheet='+sheet+'&'+qs);
+    const data=await r.json();
+    if(data.status==='ok'||data.row){
+      msg.className='mini-msg msg-ok';msg.textContent='✅ บันทึกสำเร็จ!';
+      clearMini();
+      // Reload data
+      setTimeout(async()=>{
+        D.log=await safe('entry_log');
+        D.maint=await safe('maintenance_log');
+        showCrusher(crusherId);
+      },1200);
+    } else {
+      msg.className='mini-msg msg-err';msg.textContent='❌ '+(data.error||'เกิดข้อผิดพลาด');
+    }
+  }catch(e){msg.className='mini-msg msg-err';msg.textContent='❌ '+e.message;}
+  btn.disabled=false;
+}
+
+function clearMini(){
+  ['mf-qty','mf-smu','mf-user','mf-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const s=document.getElementById('mf-status');if(s)s.value='';
+  const t=document.getElementById('mf-type');if(t)t.value='';
+}
+
+init();
+</script>
+</body>
+</html>

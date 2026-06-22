@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บันทึกข้อมูล Crusher Tip — ITD Mae Moh</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--surface:#0d1117;--card:#111827;
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+  --text:#eef0f7;--muted:#556070;--muted2:#8896aa;
+  --blue:#3b82f6;--blue-d:rgba(59,130,246,.12);
+  --green:#10b981;--green-d:rgba(16,185,129,.1);
+  --amber:#f59e0b;--amber-d:rgba(245,158,11,.1);
+  --red:#ef4444;--red-d:rgba(239,68,68,.1);
+  --orange:#f97316;
+  --r:8px;--r2:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter','Noto Sans Thai',sans-serif;font-size:13px;min-height:100vh}
+
+/* Navbar */
+.nav{background:var(--surface);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;position:sticky;top:0;z-index:100}
+.nav-left{display:flex;align-items:center;gap:12px}
+.nav-logo svg{height:28px}
+.nav-div{width:1px;height:24px;background:var(--border2)}
+.nav-title{font-size:13px;font-weight:700}
+.nav-sub{font-size:10px;color:var(--muted2)}
+.nav-right{display:flex;gap:8px}
+.nav-btn{padding:6px 14px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.nav-btn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-btn.primary{background:rgba(249,115,22,.12);border-color:rgba(249,115,22,.3);color:var(--orange)}
+
+/* Layout */
+.shell{max-width:960px;margin:0 auto;padding:28px 24px 60px}
+
+/* Header */
+.page-header{margin-bottom:28px}
+.page-title{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.page-title span{color:var(--orange)}
+.page-sub{font-size:12px;color:var(--muted2);line-height:1.6}
+.info-banner{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);border-radius:var(--r2);padding:12px 16px;font-size:12px;color:#93c5fd;margin-top:12px;display:flex;align-items:center;gap:10px}
+
+/* Form sections */
+.sec{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 22px;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.form-grid.col1{grid-template-columns:1fr}
+@media(max-width:600px){.form-grid,.form-grid.col3{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:500;color:var(--muted2)}
+.fg label span{color:var(--red);margin-left:2px}
+.fg input,.fg select,.fg textarea{
+  background:rgba(255,255,255,.05);border:1px solid var(--border2);
+  border-radius:var(--r);padding:9px 12px;font-size:13px;color:var(--text);
+  width:100%;font-family:inherit;outline:none;transition:border-color .15s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
+.fg select option{background:#1a2236;color:var(--text)}
+.fg textarea{min-height:80px;resize:vertical;line-height:1.6}
+.fg input[type="number"]{font-variant-numeric:tabular-nums}
+
+/* Crusher selector grid */
+.crusher-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:4px}
+@media(max-width:500px){.crusher-pick{grid-template-columns:repeat(3,1fr)}}
+.cp-item{border:1px solid var(--border2);border-radius:var(--r);padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.03)}
+.cp-item:hover{border-color:var(--orange);background:rgba(249,115,22,.08)}
+.cp-item.selected{border-color:var(--orange);background:rgba(249,115,22,.15);box-shadow:0 0 0 1px var(--orange)}
+.cp-name{font-size:16px;font-weight:800;letter-spacing:-1px;color:var(--text)}
+.cp-ep{font-size:9px;color:var(--muted);font-family:monospace;margin-top:2px}
+.cp-type{font-size:9px;font-weight:600;margin-top:2px}
+.cp-type.krupp{color:var(--purple, #8b5cf6)}
+.cp-type.mmd{color:var(--green)}
+
+/* Type selector */
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(max-width:500px){.type-grid{grid-template-columns:1fr}}
+.type-item{border:1px solid var(--border2);border-radius:var(--r);padding:10px 14px;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.03);display:flex;align-items:center;gap:10px}
+.type-item:hover{border-color:var(--border2);background:rgba(255,255,255,.05)}
+.type-item.selected{border-color:var(--blue);background:var(--blue-d)}
+.type-icon{font-size:20px}
+.type-title{font-size:12px;font-weight:600;color:var(--text)}
+.type-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* Status selector */
+.status-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:500px){.status-grid{grid-template-columns:repeat(2,1fr)}}
+.status-item{border:1px solid var(--border2);border-radius:var(--r);padding:8px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.03)}
+.status-item:hover{opacity:.85}
+.status-item.s-online.selected{border-color:var(--green);background:var(--green-d)}
+.status-item.s-offline.selected{border-color:var(--red);background:var(--red-d)}
+.status-item.s-maintenance.selected{border-color:var(--amber);background:var(--amber-d)}
+.status-item.s-standby.selected{border-color:var(--muted);background:rgba(85,96,112,.15)}
+.status-dot{width:8px;height:8px;border-radius:50%;margin:0 auto 5px}
+.status-lbl{font-size:10px;font-weight:600}
+
+/* Submit */
+.submit-area{margin-top:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn-submit{padding:12px 32px;background:var(--orange);border:none;border-radius:var(--r);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.btn-submit:hover{background:#ea580c;transform:translateY(-1px)}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-reset{padding:12px 20px;background:transparent;border:1px solid var(--border2);border-radius:var(--r);color:var(--muted2);font-size:13px;cursor:pointer;transition:all .15s}
+.btn-reset:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.submit-msg{font-size:12px;font-weight:500}
+.msg-ok{color:var(--green)}.msg-err{color:var(--red)}.msg-loading{color:var(--muted2)}
+
+/* Recent log */
+.log-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.log-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.log-title{font-size:12px;font-weight:600}
+.log-refresh{font-size:11px;color:var(--blue);cursor:pointer;background:none;border:none;padding:0}
+.log-refresh:hover{text-decoration:underline}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px}
+thead th{padding:8px 12px;border-bottom:1px solid var(--border2);color:var(--muted);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap}
+tbody td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.cr-pill{font-family:monospace;font-size:12px;font-weight:700;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:4px;padding:1px 8px;color:var(--blue)}
+.bdg{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.b-g{background:var(--green-d);color:var(--green)}.b-a{background:var(--amber-d);color:var(--amber)}
+.b-r{background:var(--red-d);color:var(--red)}.b-b{background:var(--blue-d);color:var(--blue)}
+.empty-row{text-align:center;color:var(--muted);padding:28px!important}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <svg viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg" height="28">
+      <circle cx="40" cy="40" r="35" fill="none" stroke="#F7941D" stroke-width="4"/>
+      <circle cx="40" cy="40" r="23" fill="none" stroke="#F7941D" stroke-width="2.5"/>
+      <rect x="33" y="19" width="5" height="42" fill="rgba(255,255,255,.9)"/>
+      <rect x="20" y="19" width="27" height="5" fill="#F7941D"/>
+      <rect x="33" y="19" width="5" height="30" fill="#F7941D"/>
+      <text x="87" y="36" font-family="Arial Black,Arial" font-weight="900" font-size="20" fill="white">ITALIAN-THAI</text>
+      <text x="87" y="54" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#F7941D" letter-spacing="2">DEVELOPMENT</text>
+    </svg>
+    <div class="nav-div"></div>
+    <div>
+      <div class="nav-title">บันทึกข้อมูล Crusher Tip</div>
+      <div class="nav-sub">Mae Moh Mine · Real-time Entry</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a class="nav-btn" href="index.html">🏠 หน้าแรก</a>
+    <a class="nav-btn primary" href="dashboard.html">📊 Dashboard</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="page-header">
+    <div class="page-title">✏️ บันทึก<span>ข้อมูล</span></div>
+    <div class="page-sub">กรอกข้อมูลการใช้ Tip / ฟันหาย / สถานะ Crusher<br>ระบบจะส่งตรงไปยัง Google Sheet อัตโนมัติ</div>
+    <div class="info-banner">
+      💡 ไม่ต้องเปิด Google Sheet — กรอกที่นี่แล้วกด "ส่งข้อมูล" ได้เลย
+    </div>
+  </div>
+
+  <!-- STEP 1: เลือก Crusher -->
+  <div class="sec">1 — เลือก Crusher</div>
+  <div class="form-card">
+    <div class="crusher-pick" id="crusherPick">
+      <div class="cp-item" data-id="A" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.A</div>
+        <div class="cp-ep">08-CS0005</div>
+        <div class="cp-type krupp">Krupp</div>
+      </div>
+      <div class="cp-item" data-id="B" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.B</div>
+        <div class="cp-ep">08-CS0006</div>
+        <div class="cp-type krupp">Krupp</div>
+      </div>
+      <div class="cp-item" data-id="C" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.C</div>
+        <div class="cp-ep">08-CS0007</div>
+        <div class="cp-type krupp">Krupp</div>
+      </div>
+      <div class="cp-item" data-id="D" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.D</div>
+        <div class="cp-ep">08-CS0008</div>
+        <div class="cp-type krupp">Krupp</div>
+      </div>
+      <div class="cp-item" data-id="I" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.I</div>
+        <div class="cp-ep">08-CS0010</div>
+        <div class="cp-type mmd">MMD</div>
+      </div>
+      <div class="cp-item" data-id="J" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.J</div>
+        <div class="cp-ep">08-CS0002</div>
+        <div class="cp-type mmd">MMD</div>
+      </div>
+      <div class="cp-item" data-id="K" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.K</div>
+        <div class="cp-ep">08-CS0012</div>
+        <div class="cp-type mmd">MMD</div>
+      </div>
+      <div class="cp-item" data-id="L" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.L</div>
+        <div class="cp-ep">08-CS0011</div>
+        <div class="cp-type mmd">MMD</div>
+      </div>
+      <div class="cp-item" data-id="N" onclick="pickCrusher(this)">
+        <div class="cp-name">CR.N</div>
+        <div class="cp-ep">08-CS0009</div>
+        <div class="cp-type mmd">MMD</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: ประเภทรายการ -->
+  <div class="sec">2 — ประเภทรายการ</div>
+  <div class="form-card">
+    <div class="type-grid">
+      <div class="type-item" data-type="Tip Change" onclick="pickType(this)">
+        <div class="type-icon">🔩</div>
+        <div><div class="type-title">เปลี่ยน Tip</div><div class="type-sub">Tip Change — บันทึกจำนวนฟันที่เปลี่ยน</div></div>
+      </div>
+      <div class="type-item" data-type="Tip Lost" onclick="pickType(this)">
+        <div class="type-icon">⚠️</div>
+        <div><div class="type-title">ฟันหาย</div><div class="type-sub">Tip Lost — บันทึกจำนวนฟันที่หาย</div></div>
+      </div>
+      <div class="type-item" data-type="Status Update" onclick="pickType(this)">
+        <div class="type-icon">🔄</div>
+        <div><div class="type-title">อัปเดตสถานะ</div><div class="type-sub">Status Update — Online/Offline/Maintenance</div></div>
+      </div>
+      <div class="type-item" data-type="SMU Update" onclick="pickType(this)">
+        <div class="type-icon">⏱</div>
+        <div><div class="type-title">อัปเดต SMU</div><div class="type-sub">Service Meter Unit — ชั่วโมงสะสม</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: รายละเอียด -->
+  <div class="sec">3 — รายละเอียด</div>
+  <div class="form-card">
+    <div class="form-grid" style="margin-bottom:14px">
+      <div class="fg">
+        <label>วันที่ <span>*</span></label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="fg">
+        <label>เดือน <span>*</span></label>
+        <select id="f-month">
+          <option value="">เลือกเดือน</option>
+          <option>Jan</option><option>Feb</option><option>Mar</option>
+          <option>Apr</option><option>May</option><option>Jun</option>
+          <option>Jul</option><option>Aug</option><option>Sep</option>
+          <option>Oct</option><option>Nov</option><option>Dec</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Qty (แสดงเมื่อเลือก Tip Change หรือ Lost) -->
+    <div id="qty-section" style="display:none;margin-bottom:14px">
+      <div class="form-grid">
+        <div class="fg">
+          <label>จำนวน Tip (ฟัน) <span>*</span></label>
+          <input type="number" id="f-qty" placeholder="0" min="0">
+        </div>
+        <div class="fg">
+          <label>ราคา Tip/ฟัน (บาท)</label>
+          <input type="number" id="f-price" value="2800" placeholder="2800">
+        </div>
+      </div>
+    </div>
+
+    <!-- SMU -->
+    <div id="smu-section" style="display:none;margin-bottom:14px">
+      <div class="fg">
+        <label>SMU (ชั่วโมงสะสม)</label>
+        <input type="number" id="f-smu" placeholder="เช่น 102703">
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div id="status-section" style="display:none;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--muted2);margin-bottom:8px">เลือกสถานะใหม่:</div>
+      <div class="status-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="status-item s-online" data-status="Run" onclick="pickStatus(this)">
+          <div class="status-dot" style="background:#10b981;box-shadow:0 0 6px #10b981"></div>
+          <div class="status-lbl" style="color:#10b981">▶ Run</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:3px">เดินเครื่องปกติ</div>
+        </div>
+        <div class="status-item s-standby" data-status="Standby" onclick="pickStatus(this)">
+          <div class="status-dot" style="background:#f59e0b"></div>
+          <div class="status-lbl" style="color:#f59e0b">⏸ Standby</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:3px">รอเดินเครื่อง</div>
+        </div>
+        <div class="status-item s-offline" data-status="Breakdown" onclick="pickStatus(this)">
+          <div class="status-dot" style="background:#ef4444"></div>
+          <div class="status-lbl" style="color:#ef4444">⛔ Breakdown</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:3px">เครื่องขัดข้อง</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg full" style="margin-bottom:0">
+      <label>ผู้บันทึก</label>
+      <input type="text" id="f-user" placeholder="ชื่อ-สกุล">
+    </div>
+  </div>
+
+  <!-- STEP 4: หมายเหตุ -->
+  <div class="sec">4 — หมายเหตุ (ถ้ามี)</div>
+  <div class="form-card">
+    <div class="fg">
+      <label>รายละเอียดเพิ่มเติม</label>
+      <textarea id="f-note" placeholder="เช่น ฟันหายตำแหน่งไหน, เหตุผลที่ Offline, หรือข้อมูลอื่นๆ"></textarea>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-area">
+    <button class="btn-submit" id="submitBtn" onclick="submitEntry()">
+      <span>📤</span> ส่งข้อมูล
+    </button>
+    <button class="btn-reset" onclick="resetForm()">↺ ล้างฟอร์ม</button>
+    <span class="submit-msg" id="submitMsg"></span>
+  </div>
+
+  <!-- Recent log -->
+  <div class="sec" style="margin-top:32px">รายการล่าสุด</div>
+  <div class="log-card">
+    <div class="log-header">
+      <div class="log-title">20 รายการล่าสุด</div>
+      <button class="log-refresh" onclick="loadLog()">↻ รีเฟรช</button>
+    </div>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>วันที่</th><th>Crusher</th><th>ประเภท</th>
+            <th>จำนวน</th><th>สถานะ</th><th>ผู้บันทึก</th><th>หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody id="logBody">
+          <tr><td class="empty-row" colspan="7">กำลังโหลด…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzvcpqrWfL5W6dpuIqZbhLho6a4fcKqiBsnwKg9SOkV9jYtuqDg6qa80F57Npg-ngC6/exec';
+
+let selCrusher='', selType='', selStatus='';
+
+// Set today's date
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+// Auto-set month
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('f-month').value = months[new Date().getMonth()];
+
+function pickCrusher(el){
+  document.querySelectorAll('.cp-item').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  selCrusher = el.dataset.id;
+}
+
+function pickType(el){
+  document.querySelectorAll('.type-item').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  selType = el.dataset.type;
+  // Show/hide sections
+  document.getElementById('qty-section').style.display = ['Tip Change','Tip Lost'].includes(selType)?'block':'none';
+  document.getElementById('smu-section').style.display = selType==='SMU Update'?'block':'none';
+  document.getElementById('status-section').style.display = selType==='Status Update'?'block':'none';
+}
+
+function pickStatus(el){
+  document.querySelectorAll('.status-item').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  selStatus = el.dataset.status;
+}
+
+async function submitEntry(){
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('submitMsg');
+
+  // Validate
+  if(!selCrusher){ showMsg('⚠️ เลือก Crusher ก่อน','err'); return; }
+  if(!selType){ showMsg('⚠️ เลือกประเภทรายการก่อน','err'); return; }
+  if(!document.getElementById('f-date').value){ showMsg('⚠️ กรอกวันที่ก่อน','err'); return; }
+  if(['Tip Change','Tip Lost'].includes(selType) && !document.getElementById('f-qty').value){
+    showMsg('⚠️ กรอกจำนวน Tip ก่อน','err'); return;
+  }
+
+  btn.disabled = true;
+  showMsg('⏳ กำลังส่งข้อมูล…','loading');
+
+  const params = {
+    Date: document.getElementById('f-date').value,
+    Month: document.getElementById('f-month').value,
+    Crusher: selCrusher,
+    Type: selType,
+    Qty: document.getElementById('f-qty').value||'',
+    Price: document.getElementById('f-price').value||'2800',
+    SMU: document.getElementById('f-smu').value||'',
+    Status: selStatus||'',
+    User: document.getElementById('f-user').value||'',
+    Note: document.getElementById('f-note').value||'',
+    Timestamp: new Date().toISOString()
+  };
+
+  try{
+    const qs = Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+    const res = await fetch(API+'?action=insert&sheet=entry_log&'+qs);
+    const data = await res.json();
+    if(data.status==='ok'||data.result==='success'||data.row){
+      showMsg('✅ บันทึกสำเร็จ!','ok');
+      resetForm();
+      setTimeout(loadLog, 1000);
+    } else {
+      showMsg('❌ เกิดข้อผิดพลาด: '+(data.error||JSON.stringify(data)),'err');
+    }
+  }catch(e){
+    showMsg('❌ ส่งไม่ได้: '+e.message,'err');
+  }
+  btn.disabled = false;
+}
+
+function showMsg(text, type){
+  const el = document.getElementById('submitMsg');
+  el.textContent = text;
+  el.className = 'submit-msg msg-'+type;
+  if(type==='ok') setTimeout(()=>el.textContent='', 4000);
+}
+
+function resetForm(){
+  selCrusher=''; selType=''; selStatus='';
+  document.querySelectorAll('.cp-item,.type-item,.status-item').forEach(e=>e.classList.remove('selected'));
+  ['qty-section','smu-section','status-section'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('f-qty').value='';
+  document.getElementById('f-smu').value='';
+  document.getElementById('f-note').value='';
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-month').value=months[new Date().getMonth()];
+}
+
+async function loadLog(){
+  const tbody = document.getElementById('logBody');
+  tbody.innerHTML = '<tr><td class="empty-row" colspan="7">กำลังโหลด…</td></tr>';
+  try{
+    const r = await fetch(API+'?sheet=entry_log');
+    const data = await r.json();
+    if(!Array.isArray(data)||!data.length){
+      tbody.innerHTML='<tr><td class="empty-row" colspan="7">ยังไม่มีรายการ</td></tr>';
+      return;
+    }
+    const rows = data.slice(-20).reverse();
+    tbody.innerHTML = rows.map(r=>{
+      const t = r.Type||'';
+      const cls = t.includes('Lost')?'b-r':t.includes('Change')?'b-g':t.includes('Status')?'b-a':'b-b';
+      const statusColor = r.Status==='Run'?'#10b981':r.Status==='Breakdown'?'#ef4444':r.Status==='Standby'?'#f59e0b':'#8896aa';
+      return `<tr>
+        <td style="color:var(--muted);white-space:nowrap">${r.Date||'—'}</td>
+        <td><span class="cr-pill">CR.${r.Crusher||'—'}</span></td>
+        <td><span class="bdg ${cls}">${r.Type||'—'}</span></td>
+        <td style="text-align:center;font-weight:700">${r.Qty||'—'}</td>
+        <td>${r.Status?`<span style="font-size:10px;font-weight:600;color:${statusColor}">${r.Status}</span>`:'—'}</td>
+        <td style="color:var(--muted2)">${r.User||'—'}</td>
+        <td style="color:var(--muted);font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.Note||'—'}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    tbody.innerHTML='<tr><td class="empty-row" colspan="7">โหลดไม่ได้: '+e.message+'</td></tr>';
+  }
+}
+
+loadLog();
+</script>
+</body>
+</html>
