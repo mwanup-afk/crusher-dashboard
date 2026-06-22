@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tip Sizer — ITD Mae Moh</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--surface:#0d1117;--card:#111827;--card2:#161e2e;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --text:#eef0f7;--muted:#556070;--muted2:#8896aa;
+  --green:#10b981;--green-d:rgba(16,185,129,.12);
+  --amber:#f59e0b;--amber-d:rgba(245,158,11,.12);
+  --red:#ef4444;--red-d:rgba(239,68,68,.12);
+  --blue:#3b82f6;--blue-d:rgba(59,130,246,.12);
+  --purple:#8b5cf6;--orange:#f97316;--r:8px;--r2:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter','Noto Sans Thai',sans-serif;font-size:13px;min-height:100vh}
+
+.nav{background:var(--surface);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 22px;height:54px;position:sticky;top:0;z-index:100;gap:12px}
+.nav svg{height:26px;flex-shrink:0}
+.nav-div{width:1px;height:22px;background:var(--border2)}
+.nav-title{font-size:13px;font-weight:700}
+.nav-sub{font-size:10px;color:var(--muted2)}
+.nav-right{margin-left:auto;display:flex;gap:6px}
+.nbtn{padding:5px 12px;border-radius:var(--r);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.nbtn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nbtn.or{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.3);color:var(--orange)}
+
+.shell{max-width:1400px;margin:0 auto;padding:20px 22px 60px}
+
+/* Page header */
+.page-hero{background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(139,92,246,.06));border:1px solid rgba(249,115,22,.15);border-radius:var(--r2);padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:20px}
+.hero-icon{font-size:48px;line-height:1}
+.hero-title{font-size:24px;font-weight:900;letter-spacing:-1px}
+.hero-title span{color:var(--orange)}
+.hero-sub{font-size:12px;color:var(--muted2);margin-top:4px}
+.hero-stats{margin-left:auto;display:flex;gap:20px}
+.hs{text-align:center}
+.hs-val{font-size:22px;font-weight:800;letter-spacing:-1px}
+.hs-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* Filter */
+.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.filter-select{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none}
+.filter-select:focus{border-color:var(--blue)}
+.filter-select option{background:#1a2236}
+.filter-label{font-size:11px;color:var(--muted);font-weight:500}
+
+/* Section */
+.sec{display:flex;align-items:center;gap:8px;margin:20px 0 12px}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.sec-line{flex:1;height:1px;background:var(--border)}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.ko::after{background:var(--orange)}.kpi.kg::after{background:var(--green)}
+.kpi.ka::after{background:var(--amber)}.kpi.kr::after{background:var(--red)}
+.kpi.kb::after{background:var(--blue)}.kpi.kp::after{background:var(--purple)}
+.kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.kpi-val{font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1}
+.or{color:var(--orange)}.g{color:var(--green)}.a{color:var(--amber)}.r{color:var(--red)}.b{color:var(--blue)}.p{color:var(--purple)}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:5px}
+
+/* Crusher tip cards */
+.cr-tip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:16px}
+.cr-tip-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:all .18s}
+.cr-tip-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.cr-tip-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.tip-high::before{background:var(--red)}
+.tip-mid::before{background:var(--amber)}
+.tip-low::before{background:var(--green)}
+.cr-tip-name{font-size:18px;font-weight:900;letter-spacing:-1px;margin-bottom:4px}
+.cr-tip-ep{font-size:9px;color:var(--muted);font-family:monospace}
+.cr-tip-type{font-size:9px;font-weight:700;margin-top:1px}
+.tip-count{font-size:32px;font-weight:900;letter-spacing:-2px;line-height:1;margin:8px 0 4px}
+.tip-unit{font-size:10px;color:var(--muted)}
+.tip-cost{font-size:11px;font-weight:600;margin-top:4px}
+.tip-bar-bg{height:5px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:8px;overflow:hidden}
+.tip-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.tip-last{font-size:10px;color:var(--muted);margin-top:6px}
+
+/* Charts */
+.chart-grid{display:grid;gap:12px;margin-bottom:12px}
+.cg2{grid-template-columns:1fr 1fr}
+.cg3{grid-template-columns:2fr 1fr}
+@media(max-width:800px){.cg2,.cg3{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px}
+.card-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:12px}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.ctag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.ctag-or{background:rgba(249,115,22,.15);color:var(--orange)}
+.ctag-b{background:var(--blue-d);color:var(--blue)}
+.ctag-g{background:var(--green-d);color:var(--green)}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.leg-i{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted2)}
+.leg-d{width:8px;height:8px;border-radius:2px}
+.cw{position:relative;width:100%}
+
+/* Heatmap */
+.heat-table{width:100%;border-collapse:separate;border-spacing:4px;min-width:650px}
+
+/* Table */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:8px 10px;border-bottom:1px solid var(--border2);color:var(--muted);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.num{text-align:right;font-variant-numeric:tabular-nums;font-family:monospace}
+.bdg{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.b-g{background:var(--green-d);color:var(--green)}.b-a{background:var(--amber-d);color:var(--amber)}
+.b-r{background:var(--red-d);color:var(--red)}.b-b{background:var(--blue-d);color:var(--blue)}
+.cr-pill{font-family:monospace;font-size:12px;font-weight:700;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);border-radius:4px;padding:1px 8px;color:var(--orange)}
+.empty{text-align:center;color:var(--muted);padding:28px!important}
+
+/* Entry form */
+.form-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--r2);padding:18px 20px}
+.form-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--orange)}
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:10px;font-weight:500;color:var(--muted2)}
+.fg label span{color:var(--red)}
+.fg input,.fg select,.fg textarea{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--r);padding:8px 10px;font-size:12px;color:var(--text);width:100%;font-family:inherit;outline:none;transition:border-color .15s}
+.fg input:focus,.fg select:focus{border-color:var(--orange)}
+.fg select option{background:#1a2236}
+.fg textarea{min-height:64px;resize:vertical}
+.sub-row{display:flex;gap:8px;align-items:center;margin-top:12px}
+.btn-sub{padding:9px 24px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:none;background:var(--orange);color:#fff;transition:opacity .15s}
+.btn-sub:hover{opacity:.85}
+.btn-sub:disabled{opacity:.4;cursor:not-allowed}
+.btn-rst{padding:9px 16px;border-radius:var(--r);font-size:12px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2)}
+.sub-msg{font-size:11px}
+.msg-ok{color:var(--green)}.msg-err{color:var(--red)}.msg-ld{color:var(--muted2)}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <svg viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="40" r="35" fill="none" stroke="#F7941D" stroke-width="4"/>
+    <circle cx="40" cy="40" r="23" fill="none" stroke="#F7941D" stroke-width="2.5"/>
+    <rect x="33" y="19" width="5" height="42" fill="rgba(255,255,255,.9)"/>
+    <rect x="20" y="19" width="27" height="5" fill="#F7941D"/>
+    <rect x="33" y="19" width="5" height="30" fill="#F7941D"/>
+    <text x="87" y="36" font-family="Arial Black,Arial" font-weight="900" font-size="20" fill="white">ITALIAN-THAI</text>
+    <text x="87" y="54" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#F7941D" letter-spacing="2">DEVELOPMENT</text>
+  </svg>
+  <div class="nav-div"></div>
+  <div>
+    <div class="nav-title">🦷 Tip Sizer Dashboard</div>
+    <div class="nav-sub">Mae Moh Mine · ติดตามการใช้ Tip ทุก Crusher</div>
+  </div>
+  <div class="nav-right">
+    <a class="nbtn" href="entry.html">✏ บันทึก</a>
+    <a class="nbtn" href="overview.html">⚙️ Overview</a>
+    <a class="nbtn" href="dashboard.html">📊 Dashboard</a>
+    <a class="nbtn" href="index.html">🏠 หน้าแรก</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="hero-icon">🦷</div>
+    <div>
+      <div class="hero-title">TIP <span>SIZER</span></div>
+      <div class="hero-sub">Crusher Krupp (A,B,C,D) · MMD (I,J,K,L,N) · ราคา 2,800 บาท/ฟัน</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hs"><div class="hs-val or" id="hTotal">—</div><div class="hs-lbl">รวม 2567 (ฟัน)</div></div>
+      <div class="hs"><div class="hs-val" id="hCost">—</div><div class="hs-lbl">ค่าใช้จ่ายรวม (฿)</div></div>
+      <div class="hs"><div class="hs-val" id="hTop">—</div><div class="hs-lbl">Crusher สูงสุด</div></div>
+      <div class="hs"><div class="hs-val" id="hAvg">—</div><div class="hs-lbl">เฉลี่ย/เดือน</div></div>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <span class="filter-label">ปี:</span>
+    <select class="filter-select" id="fYear" onchange="render()">
+      <option value="ALL">ทั้งหมด</option>
+      <option value="2024" selected>2567 (2024)</option>
+      <option value="2025">2568 (2025)</option>
+    </select>
+    <span class="filter-label">เดือน:</span>
+    <select class="filter-select" id="fMonth" onchange="render()">
+      <option value="ALL">ทั้งหมด</option>
+      <option value="Feb">กุมภาพันธ์</option><option value="Mar">มีนาคม</option>
+      <option value="Apr">เมษายน</option><option value="May">พฤษภาคม</option>
+      <option value="Jun">มิถุนายน</option><option value="Jul">กรกฎาคม</option>
+      <option value="Aug">สิงหาคม</option><option value="Sep">กันยายน</option>
+    </select>
+    <span class="filter-label">Crusher:</span>
+    <select class="filter-select" id="fCrusher" onchange="render()">
+      <option value="ALL">ทั้งหมด</option>
+      <option>A</option><option>B</option><option>C</option><option>D</option>
+      <option>I</option><option>J</option><option>K</option><option>L</option><option>N</option>
+    </select>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- Crusher Tip Cards -->
+  <div class="sec"><div class="sec-lbl">Tip ต่อ Crusher</div><div class="sec-line"></div></div>
+  <div class="cr-tip-grid" id="crTipGrid"></div>
+
+  <!-- Charts -->
+  <div class="sec"><div class="sec-lbl">กราฟ Tip รายเดือน</div><div class="sec-line"></div></div>
+  <div class="chart-grid cg3" style="margin-bottom:12px">
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">Tip ต่อเดือน — Krupp vs MMD</div><div class="card-sub">จำนวนฟันที่เปลี่ยนแต่ละเดือน</div></div>
+        <span class="ctag ctag-or">Stacked</span>
+      </div>
+      <div class="leg">
+        <div class="leg-i"><div class="leg-d" style="background:#8b5cf6"></div>Krupp</div>
+        <div class="leg-i"><div class="leg-d" style="background:#10b981"></div>MMD</div>
+      </div>
+      <div class="cw" style="height:210px"><canvas id="cMonthly"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">Tip สะสมต่อ Crusher</div><div class="card-sub">รวมทั้งปี 2567</div></div></div>
+      <div class="cw" style="height:240px"><canvas id="cPerCrusher"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Cost charts -->
+  <div class="sec"><div class="sec-lbl">ค่าใช้จ่าย Tip (Bath/Hr)</div><div class="sec-line"></div></div>
+  <div class="chart-grid cg2" style="margin-bottom:12px">
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">Bath/Hour ต่อ Crusher</div><div class="card-sub">🔴>60 · 🟡30–60 · 🟢<30 Bath/Hr</div></div>
+        <span class="ctag ctag-or">฿/Hr</span>
+      </div>
+      <div class="cw" style="height:230px"><canvas id="cCostBar"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div><div class="card-title">สัดส่วนค่าใช้จ่าย Tip</div><div class="card-sub">% ค่าใช้จ่ายแยกตาม Crusher</div></div>
+        <span class="ctag ctag-b">Donut</span>
+      </div>
+      <div class="cw" style="height:230px"><canvas id="cCostPie"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title" style="margin-bottom:4px">Heatmap — Tip ต่อ Crusher รายเดือน</div>
+    <div class="card-sub">สีเข้ม = ใช้มาก · สีจาง = ใช้น้อย</div>
+    <div style="overflow-x:auto">
+      <table class="heat-table"><thead><tr id="heatHead"></tr></thead><tbody id="heatBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- Cost detail table -->
+  <div class="sec"><div class="sec-lbl">รายละเอียดค่าใช้จ่าย</div><div class="sec-line"></div></div>
+  <div class="card" style="margin-bottom:20px">
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>เดือน</th><th>Crusher</th><th class="num">HR เดิน</th>
+          <th class="num">Production (BCM)</th><th class="num">Qty Tip</th>
+          <th class="num">ราคา (฿)</th><th class="num">฿/Hr</th><th class="num">฿/BCM</th>
+        </tr></thead>
+        <tbody id="costBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Entry form -->
+  <div class="sec"><div class="sec-lbl">บันทึกการเปลี่ยน Tip</div><div class="sec-line"></div></div>
+  <div class="form-card">
+    <div class="form-title">🦷 บันทึกการเปลี่ยน / สูญหาย Tip</div>
+    <div class="fg-grid">
+      <div class="fg">
+        <label>วันที่ <span>*</span></label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="fg">
+        <label>เดือน <span>*</span></label>
+        <select id="f-month">
+          <option value="">เลือกเดือน</option>
+          <option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option>
+          <option>May</option><option>Jun</option><option>Jul</option><option>Aug</option>
+          <option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Crusher <span>*</span></label>
+        <select id="f-crusher">
+          <option value="">เลือก Crusher</option>
+          <option>A</option><option>B</option><option>C</option><option>D</option>
+          <option>I</option><option>J</option><option>K</option><option>L</option><option>N</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>ประเภท <span>*</span></label>
+        <select id="f-type">
+          <option value="">เลือกประเภท</option>
+          <option value="Tip Change">เปลี่ยน Tip (Tip Change)</option>
+          <option value="Tip Lost">ฟันหาย (Tip Lost)</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>จำนวน (ฟัน) <span>*</span></label>
+        <input type="number" id="f-qty" placeholder="0" min="0">
+      </div>
+      <div class="fg">
+        <label>ราคา/ฟัน (฿)</label>
+        <input type="number" id="f-price" value="2800" placeholder="2800">
+      </div>
+      <div class="fg">
+        <label>ผู้บันทึก</label>
+        <input type="text" id="f-user" placeholder="ชื่อ-สกุล">
+      </div>
+      <div class="fg">
+        <label>หมายเหตุ</label>
+        <input type="text" id="f-note" placeholder="ตำแหน่งฟัน, สาเหตุ ฯลฯ">
+      </div>
+    </div>
+    <div class="sub-row">
+      <button class="btn-sub" id="subBtn" onclick="submitTip()">📤 บันทึก</button>
+      <button class="btn-rst" onclick="resetForm()">↺ ล้าง</button>
+      <span class="sub-msg" id="subMsg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzvcpqrWfL5W6dpuIqZbhLho6a4fcKqiBsnwKg9SOkV9jYtuqDg6qa80F57Npg-ngC6/exec';
+const CRUSHERS = ['A','B','C','D','I','J','K','L','N'];
+const EP = {A:'08-CS0005',B:'08-CS0006',C:'08-CS0007',D:'08-CS0008',I:'08-CS0010',J:'08-CS0002',K:'08-CS0012',L:'08-CS0011',N:'08-CS0009'};
+const TYPE = {A:'Krupp',B:'Krupp',C:'Krupp',D:'Krupp',I:'MMD',J:'MMD',K:'MMD',L:'MMD',N:'MMD'};
+const CDX = {responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#556070',font:{size:10}}},
+          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#556070',font:{size:10}},beginAtZero:true}}};
+const DC = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#f97316','#06b6d4','#ec4899','#a3e635'];
+
+let D = {tm:[],ct:[]};
+let charts = {};
+
+async function safe(name){
+  try{const r=await fetch(API+'?sheet='+encodeURIComponent(name));if(!r.ok)return[];const j=await r.json();return Array.isArray(j)?j:[];}catch(e){return [];}
+}
+function N(v){return parseFloat(v)||0;}
+
+async function init(){
+  const [tm,ct] = await Promise.all([safe('tip_monthly'), safe('cost_tip')]);
+  D = {tm, ct};
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('f-month').value = months[new Date().getMonth()];
+  render();
+}
+
+function getFilteredTM(){
+  const yr = document.getElementById('fYear').value;
+  const mo = document.getElementById('fMonth').value;
+  // tip_monthly rows don't have year — return all for now
+  return D.tm.filter(r => mo==='ALL' || r.Month===mo);
+}
+function getFilteredCT(){
+  const cr = document.getElementById('fCrusher').value;
+  return D.ct.filter(r => cr==='ALL' || r.Crusher===cr);
+}
+
+function render(){
+  const tm = getFilteredTM();
+  const ct = getFilteredCT();
+  const cols = ['Krupp_A','Krupp_B','Krupp_C','Krupp_D','MMD_I','MMD_J','MMD_K','MMD_L','MMD_N'];
+  const kc = cols.slice(0,4), mc = cols.slice(4);
+  let total=0; const crTot={};
+  cols.forEach(c=>{ crTot[c]=tm.reduce((s,r)=>s+N(r[c]),0); total+=crTot[c]; });
+  const totalCost = total * 2800;
+  const topEntry = Object.entries(crTot).sort((a,b)=>b[1]-a[1])[0];
+  const topName = topEntry[0].replace('Krupp_','CR.').replace('MMD_','CR.');
+
+  // Hero stats
+  document.getElementById('hTotal').textContent = total;
+  document.getElementById('hCost').textContent = (totalCost/1000).toFixed(0)+'K';
+  document.getElementById('hTop').textContent = topName;
+  document.getElementById('hAvg').textContent = tm.length?(total/tm.length).toFixed(1):'—';
+
+  buildKPIs(tm, ct, total, kc, mc, cols, crTot);
+  buildCrCards(crTot);
+  buildMonthly(tm, kc, mc);
+  buildPerCrusher(crTot);
+  buildCostBar(ct);
+  buildCostPie(ct);
+  buildHeatmap(tm, cols);
+  buildCostTable(ct);
+}
+
+function buildKPIs(tm, ct, total, kc, mc, cols, crTot){
+  const kt = kc.reduce((s,c)=>s+crTot[c],0);
+  const mt = mc.reduce((s,c)=>s+crTot[c],0);
+  const totalCostAll = ct.reduce((s,r)=>s+N(r.Tip_Cost_Baht),0);
+  const maxBphr = ct.length ? Math.max(...ct.map(r=>N(r.Bath_per_Hr))) : 0;
+  const maxCR = ct.find(r=>N(r.Bath_per_Hr)===maxBphr);
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi ko"><div class="kpi-lbl">รวม Tip ทั้งหมด</div><div class="kpi-val or">${total}</div><div class="kpi-sub">ฟัน</div></div>
+    <div class="kpi kp"><div class="kpi-lbl">Krupp รวม</div><div class="kpi-val p">${kt}</div><div class="kpi-sub">${total?Math.round(kt/total*100):0}% ของรวม</div></div>
+    <div class="kpi kg"><div class="kpi-lbl">MMD รวม</div><div class="kpi-val g">${mt}</div><div class="kpi-sub">${total?Math.round(mt/total*100):0}% ของรวม</div></div>
+    <div class="kpi ka"><div class="kpi-lbl">ค่าใช้จ่ายรวม</div><div class="kpi-val a">${(total*2800/1000).toFixed(0)}K</div><div class="kpi-sub">บาท (2,800/ฟัน)</div></div>
+    <div class="kpi kr"><div class="kpi-lbl">฿/Hr สูงสุด</div><div class="kpi-val r">${maxBphr.toFixed(1)}</div><div class="kpi-sub">${maxCR?'CR.'+maxCR.Crusher+' '+maxCR.Month:''}</div></div>
+    <div class="kpi kb"><div class="kpi-lbl">เฉลี่ย/เดือน</div><div class="kpi-val b">${tm.length?(total/tm.length).toFixed(1):'—'}</div><div class="kpi-sub">ฟัน/เดือน</div></div>
+  `;
+}
+
+function buildCrCards(crTot){
+  const maxTip = Math.max(...Object.values(crTot), 1);
+  const costMap = {};
+  D.ct.forEach(r=>{ if(!costMap[r.Crusher])costMap[r.Crusher]=[];costMap[r.Crusher].push(N(r.Bath_per_Hr)); });
+  document.getElementById('crTipGrid').innerHTML = CRUSHERS.map(id=>{
+    const key = (TYPE[id]==='Krupp'?'Krupp_':'MMD_')+id;
+    const tip = crTot[key]||0;
+    const pct = Math.min(tip/maxTip*100, 100);
+    const cls = tip>15?'tip-high':tip>8?'tip-mid':'tip-low';
+    const color = tip>15?'var(--red)':tip>8?'var(--amber)':'var(--green)';
+    const ac = costMap[id];
+    const avgC = ac?(ac.reduce((a,b)=>a+b,0)/ac.length).toFixed(1):'—';
+    return `<div class="cr-tip-card ${cls}">
+      <div class="cr-tip-name">CR.${id}</div>
+      <div class="cr-tip-ep">${EP[id]}</div>
+      <div class="cr-tip-type" style="color:${TYPE[id]==='MMD'?'var(--green)':'var(--purple)'}">${TYPE[id]}</div>
+      <div class="tip-count" style="color:${color}">${tip}</div>
+      <div class="tip-unit">ฟัน · ฿${(tip*2800).toLocaleString()}</div>
+      <div class="tip-cost" style="color:${N(avgC)>60?'var(--red)':N(avgC)>30?'var(--amber)':'var(--green)'}">฿/Hr เฉลี่ย: ${avgC}</div>
+      <div class="tip-bar-bg"><div class="tip-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function mk(id){if(charts[id])charts[id].destroy();}
+
+function buildMonthly(tm, kc, mc){
+  mk('cMonthly');
+  charts.cMonthly = new Chart(document.getElementById('cMonthly'),{type:'bar',
+    data:{labels:tm.map(r=>r.Month),datasets:[
+      {label:'Krupp',data:tm.map(r=>kc.reduce((s,c)=>s+N(r[c]),0)),backgroundColor:'rgba(139,92,246,.8)',borderRadius:4,barPercentage:.7},
+      {label:'MMD',data:tm.map(r=>mc.reduce((s,c)=>s+N(r[c]),0)),backgroundColor:'rgba(16,185,129,.8)',borderRadius:4,barPercentage:.7}
+    ]},
+    options:{...CDX,plugins:{...CDX.plugins,legend:{display:true,labels:{color:'#8896aa',font:{size:10},boxWidth:10}}},
+      scales:{x:{...CDX.scales.x,stacked:true},y:{...CDX.scales.y,stacked:true}}}});
+}
+
+function buildPerCrusher(crTot){
+  const cols=['Krupp_A','Krupp_B','Krupp_C','Krupp_D','MMD_I','MMD_J','MMD_K','MMD_L','MMD_N'];
+  const data = cols.map(c=>crTot[c]||0);
+  const colors=['rgba(139,92,246,.8)','rgba(139,92,246,.8)','rgba(139,92,246,.8)','rgba(139,92,246,.8)','rgba(16,185,129,.8)','rgba(16,185,129,.8)','rgba(16,185,129,.8)','rgba(16,185,129,.8)','rgba(16,185,129,.8)'];
+  mk('cPerCrusher');
+  charts.cPerCrusher = new Chart(document.getElementById('cPerCrusher'),{type:'bar',
+    data:{labels:CRUSHERS.map(i=>'CR.'+i),datasets:[{data,backgroundColor:colors,borderRadius:5,barPercentage:.7}]},
+    options:{...CDX,plugins:{...CDX.plugins,tooltip:{callbacks:{label:c=>c.raw+' ฟัน'}}}}});
+}
+
+function buildCostBar(ct){
+  const cmap={};ct.forEach(r=>{if(!cmap['CR.'+r.Crusher])cmap['CR.'+r.Crusher]=[];cmap['CR.'+r.Crusher].push(N(r.Bath_per_Hr));});
+  const labels=Object.keys(cmap),vals=labels.map(k=>+(cmap[k].reduce((a,b)=>a+b,0)/cmap[k].length).toFixed(1));
+  mk('cCostBar');
+  charts.cCostBar = new Chart(document.getElementById('cCostBar'),{type:'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:vals.map(v=>v>60?'rgba(239,68,68,.8)':v>30?'rgba(245,158,11,.8)':'rgba(16,185,129,.8)'),borderRadius:4,barPercentage:.6}]},
+    options:{...CDX,indexAxis:'y',plugins:{...CDX.plugins,tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+' ฿/Hr'}}},
+      scales:{x:{...CDX.scales.x,ticks:{...CDX.scales.x.ticks,callback:v=>v+'฿'}},y:{...CDX.scales.y,grid:{display:false}}}}});
+}
+
+function buildCostPie(ct){
+  const costByC={};ct.forEach(r=>{const k='CR.'+r.Crusher;costByC[k]=(costByC[k]||0)+N(r.Tip_Cost_Baht);});
+  const total=Object.values(costByC).reduce((a,b)=>a+b,0);
+  mk('cCostPie');
+  charts.cCostPie = new Chart(document.getElementById('cCostPie'),{type:'doughnut',
+    data:{labels:Object.keys(costByC),datasets:[{data:Object.values(costByC),backgroundColor:DC,borderColor:'var(--bg)',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'right',labels:{color:'#8896aa',font:{size:10},boxWidth:10,padding:8}},
+        tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw.toLocaleString()}฿ (${(c.raw/total*100).toFixed(1)}%)`}}}}});
+}
+
+function buildHeatmap(tm, cols){
+  const ids = CRUSHERS;
+  const maxV = Math.max(...cols.map(c=>tm.reduce((s,r)=>s+N(r[c]),0)),1);
+  document.getElementById('heatHead').innerHTML = '<th style="font-size:10px;color:var(--muted);padding:4px 6px">เดือน</th>'+
+    ids.map(i=>`<th style="font-size:10px;color:var(--muted);text-align:center;padding:4px 6px">CR.${i}</th>`).join('');
+  document.getElementById('heatBody').innerHTML = tm.map(r=>
+    '<tr><td style="font-size:11px;color:var(--muted2);padding:4px 6px;white-space:nowrap">'+r.Month+'</td>'+
+    cols.map((c,ci)=>{
+      const v=N(r[c]),p=v/maxV;
+      const bg=p>.7?'rgba(249,115,22,.6)':p>.4?'rgba(249,115,22,.35)':p>.15?'rgba(249,115,22,.18)':v>0?'rgba(249,115,22,.07)':'rgba(255,255,255,.025)';
+      const tc=p>.4?'#fed7aa':p>.15?'#fdba74':v>0?'#fb923c':'#374151';
+      return `<td style="padding:3px"><div style="border-radius:6px;height:28px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;background:${bg};color:${tc}">${v||''}</div></td>`;
+    }).join('')+'</tr>'
+  ).join('');
+}
+
+function buildCostTable(ct){
+  document.getElementById('costBody').innerHTML = ct.length?ct.map(r=>{
+    const b=N(r.Bath_per_Hr);const cls=b>60?'b-r':b>30?'b-a':b>0?'b-g':'';
+    return `<tr>
+      <td style="color:var(--muted);white-space:nowrap">${r.Month}</td>
+      <td><span class="cr-pill">CR.${r.Crusher}</span></td>
+      <td class="num">${N(r.HR).toLocaleString()}</td>
+      <td class="num">${N(r.Production_BCM).toLocaleString()}</td>
+      <td class="num" style="font-weight:700;color:var(--orange)">${N(r.Qty_Tip)}</td>
+      <td class="num">${N(r.Tip_Cost_Baht).toLocaleString()}</td>
+      <td class="num">${cls?`<span class="bdg ${cls}">${b.toFixed(1)}</span>`:'—'}</td>
+      <td class="num">${N(r.Bath_per_BCM).toFixed(4)}</td>
+    </tr>`;}).join('')
+    :'<tr><td class="empty" colspan="8">ยังไม่มีข้อมูล</td></tr>';
+}
+
+async function submitTip(){
+  const btn=document.getElementById('subBtn'),msg=document.getElementById('subMsg');
+  const crusher=document.getElementById('f-crusher').value;
+  const type=document.getElementById('f-type').value;
+  const qty=document.getElementById('f-qty').value;
+  if(!crusher||!type||!qty){msg.className='sub-msg msg-err';msg.textContent='⚠️ กรอกข้อมูลที่จำเป็นก่อน';return;}
+  btn.disabled=true;msg.className='sub-msg msg-ld';msg.textContent='⏳ กำลังส่ง…';
+  const params={
+    Date:document.getElementById('f-date').value,
+    Month:document.getElementById('f-month').value,
+    Crusher:crusher,Type:type,Qty:qty,
+    Price:document.getElementById('f-price').value||'2800',
+    User:document.getElementById('f-user').value||'',
+    Note:document.getElementById('f-note').value||'',
+    Timestamp:new Date().toISOString()
+  };
+  try{
+    const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+    const r=await fetch(API+'?action=insert&sheet=entry_log&'+qs);
+    const data=await r.json();
+    if(data.status==='ok'||data.row){
+      msg.className='sub-msg msg-ok';msg.textContent='✅ บันทึกสำเร็จ!';
+      resetForm();
+      setTimeout(async()=>{D.tm=await safe('tip_monthly');D.ct=await safe('cost_tip');render();},1500);
+    }else{msg.className='sub-msg msg-err';msg.textContent='❌ '+(data.error||'เกิดข้อผิดพลาด');}
+  }catch(e){msg.className='sub-msg msg-err';msg.textContent='❌ '+e.message;}
+  btn.disabled=false;
+}
+
+function resetForm(){
+  ['f-crusher','f-type'].forEach(id=>document.getElementById(id).value='');
+  ['f-qty','f-user','f-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-price').value='2800';
+}
+
+init();
+</script>
+</body>
+</html>
